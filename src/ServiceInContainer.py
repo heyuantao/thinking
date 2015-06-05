@@ -1,7 +1,10 @@
 import time
 import os
+import sys
 import commands
-SERVICE_NAME_LIST=['mysql']
+#this is a smart tools for docker , to setup a system service on start
+#in this case,we setup mysql and apache to begin
+SERVICE_LIST=['apache2','mysql']
 
 class ServiceController(object):
     STOP_KEYWORDS=['not running','stop','waiting']
@@ -25,7 +28,47 @@ class ServiceController(object):
         else:
             return False
     def isServiceExist(self):
+        filePath=os.path.join(self.RC_ROOT,self.service)
+        if os.path.exists(filePath):
+            return True
+        else:
+            return False
+    def startService(self):
+        (status,output)=commands.getstatusoutput(self.startCmd)
+    def stopService(self):
+        (status,output)=commands.getstatusoutput(self.stopCmd)
+
+class ToolForDocker(object):
+    @classmethod
+    def waitForEver(cls):
+        sleepTimeInSecond=60*60 #sleep for a hour
+        time.sleep(sleepTimeInSecond)
         
 if __name__=='__main__':
-    mysqlServiceCtrl=ServiceController('apache2')
-    print 'current status is: %s' %(mysqlServiceCtrl.getServiceStatus())
+    #
+    ServiceCtrlList=[]
+    for item in SERVICE_LIST:
+        serviceInstance=ServiceController(item)
+        ServiceCtrlList.append(serviceInstance)
+    
+    statusList=[x.isServiceExist() for x in ServiceCtrlList]
+    if statusList.count(False)>0:
+        print 'A Service does not exist !'
+        sys.exit(-1)
+        
+    for x in ServiceCtrlList:
+        if not x.getServiceStatus(): #if the service not up
+            x.startService()
+    print 'Finish Start The Service'
+    #ToolForDocker.waitForEver() #enter the loop and does not exist
+    '''    
+    mysqlServiceCtrl=ServiceController('mysql')
+    apacheServiceCtrl=ServiceController('apache2')
+    if mysqlServiceCtrl.isServiceExist() and apacheServiceCtrl.isServiceExist():
+        if mysqlServiceCtrl.getServiceStatus()==False:
+            mysqlServiceCtrl.startService()
+        if apacheServiceCtrl.getServiceStatus()==False:
+            apacheServiceCtrl.startService()
+    print 'Finish Start The Service'
+    ToolForDocker.waitForEver() #enter the loop and does not exist
+    '''
