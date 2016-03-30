@@ -79,15 +79,29 @@ class WebSiteStatusService(object):
     def addOneUrl(self,oneUrl=None):
         if oneUrl is None:
             return        
+        if not isinstance(oneUrl, str):
+            return
         keyString=self.prefixInRedis+":"+oneUrl
         self.redisConnection.hset(keyString, 'status',' check')
     def addUrlList(self,urlList=[]):
-        pass
-    def displaySettings(self):
-        print 'hostname:%s' %(self.redisHostname)
+        if not isinstance(urlList, list):
+            return
+        for oneUrl in urlList:
+            self.addOneUrl(oneUrl)
+            
+    def __removePrefix(self,string):
+        stringArray=string.split(':')
+        newStringArray=stringArray[1:] #remove the first part this is URL
+        newString=':'.join(newStringArray) #reassemble the left things
+        return newString
+    def displayContent(self):
+        print 'HOST:%s PORT:%s DB:%s' %(self.redisHostname,self.redisPort,self.redisDb)
+        print 'This is the content of begin'
         prefixPattern=self.prefixInRedis+'*'
         for key in self.redisConnection.keys(pattern=prefixPattern):
-            print 'KEY:%s' %(key)
+            newKey=self.__removePrefix(key)
+            print '%s' %(newKey)
+        print 'This is the content of end'
         
 if __name__=='__main__':
     pass
