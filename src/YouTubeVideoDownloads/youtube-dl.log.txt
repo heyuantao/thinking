@@ -1,0 +1,95 @@
+Number of item to download:1
+Begin download: https://www.youtube.com/watch?v=uH2iCRA9G7k
+Debug: [youtube] uH2iCRA9G7k: Downloading webpage
+Debug: [youtube] uH2iCRA9G7k: Downloading video info webpage
+Debug: [youtube] uH2iCRA9G7k: Extracting video information
+Debug: [youtube] uH2iCRA9G7k: Downloading DASH manifest
+Debug: [download] Destination: (1_1) PixHawk Video Series - Simple initial setup, config and calibration-uH2iCRA9G7k.mp4
+Debug: 
+[download]   0.0% of 282.24MiB at Unknown speed ETA Unknown ETA
+Debug: 
+[download]   0.0% of 282.24MiB at Unknown speed ETA Unknown ETA
+Debug: 
+[download]   0.0% of 282.24MiB at 17.46KiB/s ETA 04:35:56      
+Debug: 
+[download]   0.0% of 282.24MiB at 37.31KiB/s ETA 02:09:05      
+Debug: 
+[download]   0.0% of 282.24MiB at 75.43KiB/s ETA 01:03:51      
+Debug: 
+[download]   0.0% of 282.24MiB at 61.95KiB/s ETA 01:17:44      
+Debug: 
+[download]   0.0% of 282.24MiB at 59.91KiB/s ETA 01:20:22      
+Debug: 
+[download]   0.1% of 282.24MiB at 62.57KiB/s ETA 01:16:56      
+
+
+
+
+
+
+
+
+
+
+Debug: 
+[download]  99.9% of 282.24MiB at 211.36KiB/s ETA 00:01        
+Debug: 
+[download] 100.0% of 282.24MiB at 211.40KiB/s ETA 00:00        
+Debug: 
+[download] 100.0% of 282.24MiB at 211.42KiB/s ETA 00:00        
+Debug: 
+[download] 100% of 282.24MiB in 22:47                          
+Done downloading !
+
+
+
+
+
+
+
+
+
+#####################################
+Number of item to download:1
+Begin download: http://www.youtube.com/watch?v=BaW_jenozKc
+Debug: [youtube] BaW_jenozKc: Downloading webpage
+Debug: [youtube] BaW_jenozKc: Downloading video info webpage
+Debug: [youtube] BaW_jenozKc: Extracting video information
+Debug: [youtube] BaW_jenozKc: Downloading DASH manifest
+hyt debug
+Debug: [download] Destination: youtube-dl test video ''_-BaW_jenozKc.mp4
+Debug: 
+[download]   0.1% of 1.53MiB at Unknown speed ETA Unknown ETA
+Debug: 
+[download]   0.2% of 1.53MiB at 214.29KiB/s ETA 00:07        
+Debug: 
+[download]   0.4% of 1.53MiB at 17.86KiB/s ETA 01:27         
+Debug: 
+[download]   1.0% of 1.53MiB at 38.27KiB/s ETA 00:40         
+Debug: 
+[download]   2.0% of 1.53MiB at 75.98KiB/s ETA 00:20         
+Debug: 
+[download]   4.0% of 1.53MiB at 64.42KiB/s ETA 00:23         
+Debug: 
+[download]   7.6% of 1.53MiB at 76.57KiB/s ETA 00:18         
+Debug: 
+[download]  13.8% of 1.53MiB at 91.02KiB/s ETA 00:14         
+Debug: 
+[download]  21.4% of 1.53MiB at 102.48KiB/s ETA 00:11        
+Debug: 
+[download]  29.9% of 1.53MiB at 119.28KiB/s ETA 00:09        
+Debug: 
+[download]  42.9% of 1.53MiB at 132.05KiB/s ETA 00:06        
+Debug: 
+[download]  54.1% of 1.53MiB at 144.05KiB/s ETA 00:04        
+Debug: 
+[download]  68.2% of 1.53MiB at 147.38KiB/s ETA 00:03        
+Debug: 
+[download]  78.6% of 1.53MiB at 152.69KiB/s ETA 00:02        
+Debug: 
+[download]  91.4% of 1.53MiB at 151.38KiB/s ETA 00:00        
+Debug: 
+[download] 100.0% of 1.53MiB at 155.29KiB/s ETA 00:00        
+Debug: 
+[download] 100% of 1.53MiB in 00:10                          
+Done downloading !
