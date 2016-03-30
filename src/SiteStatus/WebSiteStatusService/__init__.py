@@ -13,8 +13,7 @@ def singleton(class_):
   return getinstance
 #design pattern end
 
-
-@singleton
+'''
 class WebSiteStatusService(object):
     def __init__(self):
         self.urlList=[]
@@ -66,6 +65,16 @@ class WebSiteStatusService(object):
         else:
             self.runStatus=False
         self.locker.release()
+'''      
+redisSettings={'redisHostname':'127.0.0.1','redisPort':6379,'redisDb':0}
+@singleton
+class WebSiteStatusService(object):
+    def __init__(self,redisSettings=redisSettings):
+        self.redisHostname=redisSettings['redisHostname']
+        self.redisPort=redisSettings['redisPort']
+        self.redisDb=redisSettings['redisDb']
+    def displaySettings(self):
+        print 'hostname:%s' %(self.redisHostname)
         
 if __name__=='__main__':
     pass

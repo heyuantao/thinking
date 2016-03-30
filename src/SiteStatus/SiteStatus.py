@@ -14,11 +14,12 @@ if __name__=='__main__':
     
     print("--- %s seconds ---" % (time.time() - start_time))
     '''
-    urlList=['http://www.sina.com.cn','http://www.baidu.com/']
+    #urlList=['http://www.sina.com.cn','http://www.baidu.com/']
     service=WebSiteStatusService()
-    service.setUrlList(urlList)
-    service.start()
-    time.sleep(10)
-    service.addUrlList('http://202.196.166.180')
-    time.sleep(100)
-    service.stop()
+    service.displaySettings()
+    #service.setUrlList(urlList)
+    #service.start()
+    #time.sleep(10)
+    #service.addUrlList('http://202.196.166.180')
+    #time.sleep(100)
+    #service.stop()
