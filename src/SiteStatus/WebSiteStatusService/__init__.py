@@ -70,6 +70,9 @@ class WebSiteStatusService(object):
 globalRedisSettings={'redisHostname':'127.0.0.1','redisPort':6379,'redisDb':0,'prefixInRedis':'URL'}
 @singleton
 class WebSiteStatusService(object):
+    #add queue name is 'SITEADDQUEUE'
+    #rm queue name is 'SITERMQUEUE'
+    #current queue name is 'SITECURRENTQUEUE'
     def __init__(self,redisSettings=globalRedisSettings):
         self.redisHostname=redisSettings['redisHostname']
         self.redisPort=redisSettings['redisPort']
@@ -81,14 +84,25 @@ class WebSiteStatusService(object):
             return        
         if not isinstance(oneUrl, str):
             return
-        keyString=self.prefixInRedis+":"+oneUrl
-        self.redisConnection.hset(keyString, 'status',' check')
+        #keyString=self.prefixInRedis+":"+oneUrl
+        #self.redisConnection.hset(keyString, 'status',' check')
+        self.redisConnection.sadd('SITEADDQUEUE',oneUrl)
     def addUrlList(self,urlList=[]):
         if not isinstance(urlList, list):
             return
         for oneUrl in urlList:
             self.addOneUrl(oneUrl)
-            
+    def removeUrl(self,oneUrl):
+        if oneUrl is None:
+            return        
+        if not isinstance(oneUrl, str):
+            return
+        self.redisConnection.sadd('SITERMQUEUE',oneUrl)
+    def removeUrlList(self,urlList=[]):
+        if not isinstance(urlList, list):
+            return
+        for oneUrl in urlList:
+            self.removeUrl(oneUrl)
     def __removePrefix(self,string):
         stringArray=string.split(':')
         newStringArray=stringArray[1:] #remove the first part this is URL
@@ -96,6 +110,8 @@ class WebSiteStatusService(object):
         return newString
     def displayContent(self):
         print 'HOST:%s PORT:%s DB:%s' %(self.redisHostname,self.redisPort,self.redisDb)
+        print 'Queue for add:%s' %(self.redisConnection.smembers('SITEADDQUEUE'))
+        print 'Queue for remove:%s' %(self.redisConnection.smembers('SITERMQUEUE'))
         print 'This is the content of begin'
         prefixPattern=self.prefixInRedis+'*'
         for key in self.redisConnection.keys(pattern=prefixPattern):

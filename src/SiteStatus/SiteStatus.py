@@ -19,6 +19,7 @@ if __name__=='__main__':
     list=['http://www.sina.com.cn','http://www.baidu.com']
     service.addOneUrl('http://www.zol.com.cn')
     service.addUrlList(list)
+    service.removeUrlList(list)
     service.displayContent()
     #service.setUrlList(urlList)
     #service.start()
