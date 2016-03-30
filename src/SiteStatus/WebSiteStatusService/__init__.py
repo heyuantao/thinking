@@ -1,6 +1,7 @@
 import thread
 import threading
 import time
+import redis
 from WebSiteStatus import WebSiteStatus
 
 #design pattern begin        
@@ -66,15 +67,27 @@ class WebSiteStatusService(object):
             self.runStatus=False
         self.locker.release()
 '''      
-redisSettings={'redisHostname':'127.0.0.1','redisPort':6379,'redisDb':0}
+globalRedisSettings={'redisHostname':'127.0.0.1','redisPort':6379,'redisDb':0,'prefixInRedis':'URL'}
 @singleton
 class WebSiteStatusService(object):
-    def __init__(self,redisSettings=redisSettings):
+    def __init__(self,redisSettings=globalRedisSettings):
         self.redisHostname=redisSettings['redisHostname']
         self.redisPort=redisSettings['redisPort']
         self.redisDb=redisSettings['redisDb']
+        self.prefixInRedis=redisSettings['prefixInRedis']
+        self.redisConnection=redis.Redis(host=self.redisHostname,port=self.redisPort,db=self.redisDb)
+    def addOneUrl(self,oneUrl=None):
+        if oneUrl is None:
+            return        
+        keyString=self.prefixInRedis+":"+oneUrl
+        self.redisConnection.hset(keyString, 'status',' check')
+    def addUrlList(self,urlList=[]):
+        pass
     def displaySettings(self):
         print 'hostname:%s' %(self.redisHostname)
+        prefixPattern=self.prefixInRedis+'*'
+        for key in self.redisConnection.keys(pattern=prefixPattern):
+            print 'KEY:%s' %(key)
         
 if __name__=='__main__':
     pass
