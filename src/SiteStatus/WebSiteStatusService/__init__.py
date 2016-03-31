@@ -3,6 +3,7 @@ import threading
 import time
 import redis
 from WebSiteStatus import WebSiteStatus
+from redis_lock import RedisLock
 
 #design pattern begin        
 def singleton(class_):
@@ -79,6 +80,7 @@ class WebSiteStatusService(object):
         self.redisDb=redisSettings['redisDb']
         self.prefixInRedis=redisSettings['prefixInRedis']
         self.redisConnection=redis.Redis(host=self.redisHostname,port=self.redisPort,db=self.redisDb)
+        self.lock=RedisLock(self.redisConnection,lock_key='LOCK:WebSiteStatusService')
     def addOneUrl(self,oneUrl=None):
         if oneUrl is None:
             return        
@@ -86,7 +88,9 @@ class WebSiteStatusService(object):
             return
         #keyString=self.prefixInRedis+":"+oneUrl
         #self.redisConnection.hset(keyString, 'status',' check')
+        self.lock.acquire()
         self.redisConnection.sadd('SITEADDQUEUE',oneUrl)
+        self.lock.release()
     def addUrlList(self,urlList=[]):
         if not isinstance(urlList, list):
             return
@@ -97,7 +101,9 @@ class WebSiteStatusService(object):
             return        
         if not isinstance(oneUrl, str):
             return
+        self.lock.acquire()
         self.redisConnection.sadd('SITERMQUEUE',oneUrl)
+        self.lock.release()
     def removeUrlList(self,urlList=[]):
         if not isinstance(urlList, list):
             return
@@ -108,6 +114,34 @@ class WebSiteStatusService(object):
         newStringArray=stringArray[1:] #remove the first part this is URL
         newString=':'.join(newStringArray) #reassemble the left things
         return newString
+    def startService(self):
+        needReRun=False
+        self.lock.acquire()
+        if self.redisConnection.get('STATUS')=='STOP':
+            self.redisConnection.set('STATUS','RUN')
+            needReRun=True
+        else: #already run
+            needReRun=False
+        self.lock.release()
+        
+        if needReRun==True:
+            #run service in background thread,this will return immedially
+            t=threading.Thread(target=self.runServiceInThread,args=())    
+            t.start()
+    def runServiceInThread(self):
+        #this is the main thread ,
+        #which check the status perdically and determint to run of stop
+        while True:
+            time.sleep(10)
+            #check web status and save status in database
+            
+    def stopService(self):
+        self.lock.acquire()
+        if self.redisConnection.get('STATUS')=='RUN':
+            self.redisConnection.set('STATUS','STOP')
+        else:
+            pass
+        self.lock.release()
     def displayContent(self):
         print 'HOST:%s PORT:%s DB:%s' %(self.redisHostname,self.redisPort,self.redisDb)
         print 'Queue for add:%s' %(self.redisConnection.smembers('SITEADDQUEUE'))
