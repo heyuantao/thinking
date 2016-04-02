@@ -25,7 +25,7 @@ class WebSiteStatus(object):
         gevent.joinall(threads)   
         
     def getStatusList(self):
-        return self.siteStatuList
+        return (self.siteUrlList,self.siteStatuList)
     
     def displayAllStatus(self):
         for index,oneUrl in enumerate(self.siteUrlList):   

@@ -15,59 +15,6 @@ def singleton(class_):
   return getinstance
 #design pattern end
 
-'''
-class WebSiteStatusService(object):
-    def __init__(self):
-        self.urlList=[]
-        self.runStatus=False
-        self.locker=threading.Lock()
-        
-    def setUrlList(self,urlList):
-        self.locker.acquire()
-        self.urlList=urlList
-        self.locker.release()
-        
-    def addUrlList(self,oneUrl):
-        self.locker.acquire()
-        self.urlList.append(oneUrl)
-        self.locker.release()
-        
-    def backgroundThread(self):
-        while True:
-            if self.runStatus==False:
-                break
-            time.sleep(5)
-            self.locker.acquire()
-            cachedUrlList=[item for item in self.urlList]
-            self.locker.release()
-            webSiteStatus=WebSiteStatus()
-            print cachedUrlList
-            for oneUrl in cachedUrlList:                
-                webSiteStatus.addSiteUrl(oneUrl)
-            webSiteStatus.checkAll()
-            webSiteStatus.displayAllStatus()
-            
-    def startTask(self):
-        t=threading.Thread(target=self.backgroundThread,args=())    
-        t.start()
-        
-    def start(self):
-        self.locker.acquire()
-        if self.runStatus==True:
-            return
-        else:
-            self.runStatus=True
-            self.startTask() #return immedialy
-        self.locker.release()
-        
-    def stop(self):
-        self.locker.acquire()
-        if self.runStatus==False:
-            return
-        else:
-            self.runStatus=False
-        self.locker.release()
-'''      
 globalRedisSettings={'redisHostname':'127.0.0.1','redisPort':6379,'redisDb':0,'prefixInRedis':'URL'}
 @singleton
 class WebSiteStatusService(object):
@@ -81,34 +28,34 @@ class WebSiteStatusService(object):
         self.prefixInRedis=redisSettings['prefixInRedis']
         self.redisConnection=redis.Redis(host=self.redisHostname,port=self.redisPort,db=self.redisDb)
         self.lock=RedisLock(self.redisConnection,lock_key='LOCK:WebSiteStatusService')
-    def addOneUrl(self,oneUrl=None):
+    def __addOneUrl(self,oneUrl=None):
         if oneUrl is None:
             return        
         if not isinstance(oneUrl, str):
             return
-        #keyString=self.prefixInRedis+":"+oneUrl
-        #self.redisConnection.hset(keyString, 'status',' check')
-        self.lock.acquire()
         self.redisConnection.sadd('SITES',oneUrl)
-        self.lock.release()
     def addUrlList(self,urlList=[]):
         if not isinstance(urlList, list):
             return
+        self.lock.acquire()
         for oneUrl in urlList:
-            self.addOneUrl(oneUrl)
-    def removeUrl(self,oneUrl):
+            self.__addOneUrl(oneUrl)
+        self.lock.release()
+    def __removeUrl(self,oneUrl):
         if oneUrl is None:
             return        
         if not isinstance(oneUrl, str):
             return
-        self.lock.acquire()
+        #self.lock.acquire()
         self.redisConnection.srem('SITES',oneUrl)
-        self.lock.release()
+        #self.lock.release()
     def removeUrlList(self,urlList=[]):
         if not isinstance(urlList, list):
             return
+        self.lock.acquire()
         for oneUrl in urlList:
-            self.removeUrl(oneUrl)
+            self.__removeUrl(oneUrl)
+        self.lock.release()
     def __removePrefix(self,string):
         stringArray=string.split(':')
         newStringArray=stringArray[1:] #remove the first part this is URL
@@ -130,22 +77,34 @@ class WebSiteStatusService(object):
             t=threading.Thread(target=self.runServiceInThread,args=())    
             t.start()
     def runServiceInThread(self):
-        #this is the main thread ,
-        #which check the status perdically and determint to run of stop
-        while True:
+        while True: #this thread will loop forever
             runStatus=self.redisConnection.get('STATUS')
             if runStatus=='STOP':
                 break
-            #do staff begin
-            #print 'begin check'
             webSiteStatus=WebSiteStatus()
-            for oneUrl in self.redisConnection.smembers('SITES'):     
-                #print 'add:',oneUrl           
+            for oneUrl in self.redisConnection.smembers('SITES'):
                 webSiteStatus.addSiteUrl(oneUrl)
             webSiteStatus.checkAll()
-            webSiteStatus.displayAllStatus()
+            (urlList,stateList)=webSiteStatus.getStatusList()
+            #append the site state into redis
+            for oneUrl,oneState in zip(urlList,stateList):
+                key='URL:'+oneUrl
+                self.redisConnection.set(key,oneState)
+            #remove the url not in urlList
+            keyPattern=self.prefixInRedis+':*' #'URL:*'
+            oldUrlListWithPrefix=self.redisConnection.keys(pattern=keyPattern)
+            oldUrlList=[self.__removePrefix(item) for item in oldUrlListWithPrefix ]
+            newUrlList=self.redisConnection.smembers('SITES')
+            
+            self.lock.acquire()
+            for oneUrl in oldUrlList:
+                if oneUrl not in  newUrlList:
+                    self.redisConnection.delete(self.prefixInRedis+':'+oneUrl)
+            self.lock.release()
+            
+            print 'checking !'                       
+            #webSiteStatus.displayAllStatus()
             self.redisConnection.set('TIMESTAMP',int(time.time()))
-            #do staff end
             time.sleep(1)
         self.redisConnection.set('STATUS','STOP')  
     def stopService(self):
