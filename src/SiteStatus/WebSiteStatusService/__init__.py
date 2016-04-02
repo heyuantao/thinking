@@ -117,7 +117,8 @@ class WebSiteStatusService(object):
     def startService(self):
         needReRun=False
         self.lock.acquire()
-        if self.redisConnection.get('STATUS')=='STOP':
+        runStatus=self.redisConnection.get('STATUS')
+        if (runStatus=='STOP')or(runStatus is None):
             self.redisConnection.set('STATUS','RUN')
             needReRun=True
         else: #already run
@@ -132,9 +133,12 @@ class WebSiteStatusService(object):
         #this is the main thread ,
         #which check the status perdically and determint to run of stop
         while True:
-            time.sleep(10)
-            #check web status and save status in database
-            
+            runStatus=self.redisConnection.get('STATUS')
+            if runStatus=='STOP':
+                break
+            time.sleep(1)
+            print 'in thread'
+        self.redisConnection.set('STATUS','STOP')  
     def stopService(self):
         self.lock.acquire()
         if self.redisConnection.get('STATUS')=='RUN':
