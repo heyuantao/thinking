@@ -89,7 +89,7 @@ class WebSiteStatusService(object):
         #keyString=self.prefixInRedis+":"+oneUrl
         #self.redisConnection.hset(keyString, 'status',' check')
         self.lock.acquire()
-        self.redisConnection.sadd('SITEADDQUEUE',oneUrl)
+        self.redisConnection.sadd('SITES',oneUrl)
         self.lock.release()
     def addUrlList(self,urlList=[]):
         if not isinstance(urlList, list):
@@ -102,7 +102,7 @@ class WebSiteStatusService(object):
         if not isinstance(oneUrl, str):
             return
         self.lock.acquire()
-        self.redisConnection.sadd('SITERMQUEUE',oneUrl)
+        self.redisConnection.srem('SITES',oneUrl)
         self.lock.release()
     def removeUrlList(self,urlList=[]):
         if not isinstance(urlList, list):
@@ -136,8 +136,17 @@ class WebSiteStatusService(object):
             runStatus=self.redisConnection.get('STATUS')
             if runStatus=='STOP':
                 break
+            #do staff begin
+            #print 'begin check'
+            webSiteStatus=WebSiteStatus()
+            for oneUrl in self.redisConnection.smembers('SITES'):     
+                #print 'add:',oneUrl           
+                webSiteStatus.addSiteUrl(oneUrl)
+            webSiteStatus.checkAll()
+            webSiteStatus.displayAllStatus()
+            self.redisConnection.set('TIMESTAMP',int(time.time()))
+            #do staff end
             time.sleep(1)
-            print 'in thread'
         self.redisConnection.set('STATUS','STOP')  
     def stopService(self):
         self.lock.acquire()
@@ -148,8 +157,7 @@ class WebSiteStatusService(object):
         self.lock.release()
     def displayContent(self):
         print 'HOST:%s PORT:%s DB:%s' %(self.redisHostname,self.redisPort,self.redisDb)
-        print 'Queue for add:%s' %(self.redisConnection.smembers('SITEADDQUEUE'))
-        print 'Queue for remove:%s' %(self.redisConnection.smembers('SITERMQUEUE'))
+        print 'SITE LIST:%s' %(self.redisConnection.smembers('SITES'))
         print 'This is the content of begin'
         prefixPattern=self.prefixInRedis+'*'
         for key in self.redisConnection.keys(pattern=prefixPattern):
