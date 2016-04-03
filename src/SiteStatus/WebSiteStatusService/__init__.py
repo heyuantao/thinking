@@ -34,6 +34,7 @@ class WebSiteStatusService(object):
     def __addOneUrl(self,oneUrl=None):
         if oneUrl is None:
             return        
+        print type(oneUrl)
         if not isinstance(oneUrl, str):
             return
         self.redisConnection.sadd('SITES',oneUrl)
@@ -117,16 +118,23 @@ class WebSiteStatusService(object):
         else:
             pass
         self.lock.release()
-    def displayContent(self):
-        print 'HOST:%s PORT:%s DB:%s' %(self.redisHostname,self.redisPort,self.redisDb)
-        print 'SITE LIST:%s' %(self.redisConnection.smembers('SITES'))
-        print 'This is the content of begin'
-        prefixPattern=self.prefixInRedis+'*'
-        for key in self.redisConnection.keys(pattern=prefixPattern):
-            newKey=self.__removePrefix(key)
-            print '%s' %(newKey)
-        print 'This is the content of end'
-
+    def getStatus(self):
+        returnStr=""
+        returnStr+= 'HOST:%s PORT:%s DB:%s' %(self.redisHostname,self.redisPort,self.redisDb)
+        returnStr+= 'SITE LIST:%s' %(self.redisConnection.smembers('SITES'))
+        returnStr+= 'This is the content of begin'
+        return returnStr
+        #prefixPattern=self.prefixInRedis+'*'
+        #for key in self.redisConnection.keys(pattern=prefixPattern):
+        #    newKey=self.__removePrefix(key)
+        #    print '%s' %(newKey)
+        #print 'This is the content of end'
+    def getUrlList(self):
+        urlList=[]
+        listSet=self.redisConnection.smembers('SITES')
+        for item in listSet:
+            urlList.append(item)
+        return urlList
 class WebSiteStatus(object):
     def __init__(self):
         self.siteUrlList=[]
