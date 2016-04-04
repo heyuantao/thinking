@@ -34,7 +34,7 @@ class WebSiteStatusService(object):
     def __addOneUrl(self,oneUrl=None):
         if oneUrl is None:
             return        
-        print type(oneUrl)
+        #print type(oneUrl)
         if not isinstance(oneUrl, str):
             return
         self.redisConnection.sadd('SITES',oneUrl)
@@ -77,23 +77,41 @@ class WebSiteStatusService(object):
         self.lock.release()
         
         if needReRun==True:
-            #run service in background thread,this will return immedially
-            t=threading.Thread(target=self.runServiceInThread,args=())    
-            t.start()
+            tMain=threading.Thread(target=self.runServiceInThread,args=())    
+            tSlave=threading.Thread(target=self.updateTimestampInThread,args=()) 
+            tMain.start()
+            tSlave.start()
+            
+    def updateTimestampInThread(self):
+        while True:
+            runStatus=self.redisConnection.get('STATUS')
+            if runStatus=='STOP':
+                print 'no timestamp'
+                time.sleep(1)
+                continue
+            self.redisConnection.set('TIMESTAMP',int(time.time()))
+            print 'timestamp'
+            time.sleep(1)
+            
     def runServiceInThread(self):
         while True: #this thread will loop forever
             runStatus=self.redisConnection.get('STATUS')
             if runStatus=='STOP':
-                break
+                print 'no check'
+                time.sleep(1)
+                continue
+            print 'check'
             webSiteStatus=WebSiteStatus()
             for oneUrl in self.redisConnection.smembers('SITES'):
                 webSiteStatus.addSiteUrl(oneUrl)
             webSiteStatus.checkAll()
             (urlList,stateList)=webSiteStatus.getStatusList()
+            
             #append the site state into redis
             for oneUrl,oneState in zip(urlList,stateList):
                 key='URL:'+oneUrl
                 self.redisConnection.set(key,oneState)
+                
             #remove the url not in urlList
             keyPattern=self.prefixInRedis+':*' #'URL:*'
             oldUrlListWithPrefix=self.redisConnection.keys(pattern=keyPattern)
@@ -106,11 +124,11 @@ class WebSiteStatusService(object):
                     self.redisConnection.delete(self.prefixInRedis+':'+oneUrl)
             self.lock.release()
             
-            print 'checking !'                       
+            #print 'checking !'                       
             #webSiteStatus.displayAllStatus()
-            self.redisConnection.set('TIMESTAMP',int(time.time()))
+            #self.redisConnection.set('TIMESTAMP',int(time.time()))
             time.sleep(1)
-        self.redisConnection.set('STATUS','STOP')  
+        #self.redisConnection.set('STATUS','STOP')  
     def stopService(self):
         self.lock.acquire()
         if self.redisConnection.get('STATUS')=='RUN':
@@ -124,11 +142,6 @@ class WebSiteStatusService(object):
         returnStr+= 'SITE LIST:%s' %(self.redisConnection.smembers('SITES'))
         returnStr+= 'This is the content of begin'
         return returnStr
-        #prefixPattern=self.prefixInRedis+'*'
-        #for key in self.redisConnection.keys(pattern=prefixPattern):
-        #    newKey=self.__removePrefix(key)
-        #    print '%s' %(newKey)
-        #print 'This is the content of end'
     def getUrlList(self):
         urlList=[]
         listSet=self.redisConnection.smembers('SITES')
