@@ -13,17 +13,23 @@ rejectStatus={"status":"reject"}
 # Create your views here.
 class ServiceStatus(APIView):
     def get(self,request):
-        currentStatus={'status':'stoped'}
-        return Response(currentStatus)
+        serviceMonitor=ServiceMonitor()
+        serverStatus=serviceMonitor.getServiceStatus()
+        serverStatusDict={}
+        serverStatusDict['server_status']=serverStatus
+        return Response(serverStatusDict)
     def post(self,request):
         dictData=request.data
-        newStatus=dictData['status'].encode('utf-8')
-        if newStatus=='start':
-            print 'start service'
-            tools.runScriptInBackground()
+        newStatus=dictData['server_status'].encode('utf-8')
+        
+        serviceMonitor=ServiceMonitor()
+        if newStatus=='run':
+            print 'run'
+            serviceMonitor.changeServiceToRun()
             return Response(successStatus)
         elif newStatus=='stop':
-            print 'stop service'
+            print 'stop'
+            serviceMonitor.changeServiceToStop()
             return Response(successStatus)
         else:
             print 'unsupport command'

@@ -35,12 +35,14 @@ class ServiceMonitor(object):
         newString=':'.join(newStringArray) #reassemble the left things
         return newString
     def getServiceStatus(self):
-        statusDict={}
+        #statusDict={}
         runStatus=self.redisConnection.get('STATUS')
-        if runStatus is None:
-            runStatus='STOP'
-        statusDict['service_status']=runStatus
-        return statusDict
+        if (runStatus is None)or(runStatus=='STOP'):
+            runStatus='stop'
+        if runStatus=='RUN':
+            runStatus='run'
+        #statusDict['service_status']=runStatus
+        return runStatus
     def __addOneUrl(self,oneUrl=None):
         if oneUrl is None:
             return        
@@ -68,16 +70,14 @@ class ServiceMonitor(object):
             self.__removeUrl(oneUrl)
         self.lock.release()
         
-    def changeServiceStatus(self,statusCommand):
+    def changeServiceToRun(self):
         statusDict={}
-        if statusCommand not in ['STOP','RUN']:
-            statusDict['status']='reject'
-            return statusDict
-        
-        if statusCommand=='STOP':
-            self.redisConnection.set('STATUS', 'STOP')
-        elif statusCommand=='RUN':
-            self.redisConnection.set('STATUS', 'RUN')
+        self.redisConnection.set('STATUS', 'RUN')
+        statusDict['status']='success'
+        return statusDict
+    def changeServiceToStop(self):
+        statusDict={}
+        self.redisConnection.set('STATUS', 'STOP')
         statusDict['status']='success'
         return statusDict
     def getUrlList(self):        
