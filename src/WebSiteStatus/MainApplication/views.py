@@ -34,17 +34,23 @@ class AddUrl(APIView):
         return Response(successStatus)
     def post(self,request):
         dictData=request.data
-        urlList=dictData['urls']
-        #do staff
+        urlListWithUnicode=dictData['urls']
+        urlList=[oneUrl.encode('utf-8') for oneUrl in urlListWithUnicode]
+        print urlList
+        serviceMonitor=ServiceMonitor()
+        serviceMonitor.addUrlList(urlList)
         return Response(successStatus)
-#  {"urls":["www.sina.com.cn","www.baidu.com"]}    
+#  {"urls":["www.sina.com.cn","www.zol.com.cn"]}    
 class RemoveUrl(APIView):
     def get(self,request):
         return Response(successStatus)
     def post(self,request):
         dictData=request.data
-        urlList=dictData['urls']
-        #do staff
+        urlListWithUnicode=dictData['urls']
+        urlList=[oneUrl.encode('utf-8') for oneUrl in urlListWithUnicode]
+        print urlList
+        serviceMonitor=ServiceMonitor()
+        serviceMonitor.removeUrlList(urlList)
         return Response(successStatus)
     
 class UrlList(APIView):

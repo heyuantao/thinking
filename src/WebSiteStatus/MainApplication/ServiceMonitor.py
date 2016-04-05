@@ -41,6 +41,33 @@ class ServiceMonitor(object):
             runStatus='STOP'
         statusDict['service_status']=runStatus
         return statusDict
+    def __addOneUrl(self,oneUrl=None):
+        if oneUrl is None:
+            return        
+        if not isinstance(oneUrl, str):
+            return
+        self.redisConnection.sadd('SITES',oneUrl)
+    def addUrlList(self,urlList=[]):
+        if not isinstance(urlList, list):
+            return
+        self.lock.acquire()
+        for oneUrl in urlList:
+            self.__addOneUrl(oneUrl)
+        self.lock.release()        
+    def __removeUrl(self,oneUrl):
+        if oneUrl is None:
+            return        
+        if not isinstance(oneUrl, str):
+            return
+        self.redisConnection.srem('SITES',oneUrl)
+    def removeUrlList(self,urlList=[]):
+        if not isinstance(urlList, list):
+            return
+        self.lock.acquire()
+        for oneUrl in urlList:
+            self.__removeUrl(oneUrl)
+        self.lock.release()
+        
     def changeServiceStatus(self,statusCommand):
         statusDict={}
         if statusCommand not in ['STOP','RUN']:
@@ -53,11 +80,11 @@ class ServiceMonitor(object):
             self.redisConnection.set('STATUS', 'RUN')
         statusDict['status']='success'
         return statusDict
-    def getUrlList(self):
-        keyPattern=self.prefixInRedis+':*' #'URL:*'
-        urlListWithPrefix=self.redisConnection.keys(pattern=keyPattern)
-        urlList=[self.__removePrefix(item) for item in urlListWithPrefix ]
+    def getUrlList(self):        
+        urlListSet=self.redisConnection.smembers('SITES')
+        urlList=[oneUrl for oneUrl in urlListSet] #change the set into list of python
         returnDict={}
+        #print urlList
         returnDict['urls']=urlList
         return returnDict
     def getURLStatus(self):
