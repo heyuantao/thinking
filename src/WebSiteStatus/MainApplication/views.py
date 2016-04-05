@@ -14,8 +14,12 @@ rejectStatus={"status":"reject"}
 class ServiceStatus(APIView):
     def get(self,request):
         serviceMonitor=ServiceMonitor()
-        serverStatus=serviceMonitor.getServiceStatus()
         serverStatusDict={}
+        if serviceMonitor.isServiceProcessDown():
+            serverStatusDict['server_status']='down'
+            return Response(serverStatusDict)
+        #otherwise the service is in run or stop status
+        serverStatus=serviceMonitor.getServiceStatus()        
         serverStatusDict['server_status']=serverStatus
         return Response(serverStatusDict)
     def post(self,request):
