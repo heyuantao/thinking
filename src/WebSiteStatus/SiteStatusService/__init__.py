@@ -192,7 +192,7 @@ class WebSiteStatus(object):
             return False
 
 
-if __name__=='__main__':
+def mainProgram():
     service=WebSiteStatusService()
     status=service.startService()    
     #wait the service thread forever
