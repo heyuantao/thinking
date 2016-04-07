@@ -19,8 +19,9 @@ class ServiceStatus(APIView):
             serverStatusDict['server_status']='down'
             return Response(serverStatusDict)
         #otherwise the service is in run or stop status
-        serverStatus=serviceMonitor.getServiceStatus()        
-        serverStatusDict['server_status']=serverStatus
+        else:
+            serverStatus=serviceMonitor.getServiceStatus()        
+            serverStatusDict['server_status']=serverStatus
         return Response(serverStatusDict)
     def post(self,request):
         dictData=request.data

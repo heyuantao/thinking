@@ -66,11 +66,20 @@ class WebSiteStatusService(object):
         
         tMain=threading.Thread(target=self.runServiceInThread,args=())
         tMain.daemon=True
-        tSlave=threading.Thread(target=self.updateTimestampInThread,args=())
-        tSlave.daemon=True
+        tSlave1=threading.Thread(target=self.updateTimestampInThread,args=())
+        tSlave1.daemon=True
+        tSlave2=threading.Thread(target=self.updateKeepAliveStatusInThead,args=())
+        tSlave2.daemon=True
         tMain.start()
-        tSlave.start()
+        tSlave1.start()
+        tSlave2.start()
         
+    def updateKeepAliveStatusInThead(self): 
+        while True:
+            print 'keep alive'
+            runStatus=self.redisConnection.setex('KEEPALIVE','TRUE',2)
+            time.sleep(1)
+            
     def updateTimestampInThread(self):
         while True:
             runStatus=self.redisConnection.get('STATUS')

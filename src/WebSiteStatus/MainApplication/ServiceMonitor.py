@@ -35,17 +35,11 @@ class ServiceMonitor(object):
         newString=':'.join(newStringArray) #reassemble the left things
         return newString
     def isServiceProcessDown(self):
-        timeStamp=self.redisConnection.get('TIMESTAMP')
-        if timeStamp is None:
+        keepaliveStatus=self.redisConnection.get('KEEPALIVE')        
+        if keepaliveStatus=='TRUE':
+            return False
+        else:
             return True
-        if abs(int(timeStamp)-int(time.time()))>5:
-            if self.redisConnection.get('STATUS')=='STOP':
-                return False
-            elif self.redisConnection.get('STATUS')=='RUN':
-                return True
-            else:
-                return False
-        return False
     def getServiceStatus(self):
         #statusDict={}
         runStatus=self.redisConnection.get('STATUS')
