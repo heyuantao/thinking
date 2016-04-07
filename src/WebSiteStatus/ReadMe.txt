@@ -11,10 +11,10 @@ one minute.
 3:MainApplication
    Most of view were implement in this package
    
-How to use 
+How to use it,There are two way 
+a:run every python file spearately
 1.run the command,python 2.7 was tested 
   python runBackgroundService.py 
 2.run the command
   python runserver 0.0.0.0:80
   the django program will be started and communicate with backgroud service with redis
-  
