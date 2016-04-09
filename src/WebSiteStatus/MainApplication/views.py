@@ -1,16 +1,24 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-#from rest_framework.renderers import JSONRenderer
-#import subprocess
-#import os
-#import tools
+import urls
+
 from MainApplication.ServiceMonitor import ServiceMonitor
 
 successStatus={"status":"success"}
 rejectStatus={"status":"reject"}
 
 # Create your views here.
+class IndexPage(APIView):
+    def get(self,request):
+        pathDict={}
+        pathList=[]
+        for item in urls.urlpatterns:
+            print item.regex.pattern
+            pathList.append(item.regex.pattern)
+        pathDict['paths']=pathList
+        return Response(pathDict)
+    
 class ServiceStatus(APIView):
     def get(self,request):
         serviceMonitor=ServiceMonitor()
