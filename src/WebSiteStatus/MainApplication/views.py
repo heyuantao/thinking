@@ -20,16 +20,20 @@ class IndexPage(APIView):
         return Response(pathDict)
     
 class ServiceStatus(APIView):
+    def __init__(self):
+        self.supportStatus=['run','stop']
     def get(self,request):
         serviceMonitor=ServiceMonitor()
         serverStatusDict={}
         if serviceMonitor.isServiceProcessDown():
             serverStatusDict['server_status']='down'
+            serverStatusDict['support_status']=self.supportStatus
             return Response(serverStatusDict)
         #otherwise the service is in run or stop status
         else:
             serverStatus=serviceMonitor.getServiceStatus()        
             serverStatusDict['server_status']=serverStatus
+            serverStatusDict['support_status']=self.supportStatus
         return Response(serverStatusDict)
     def post(self,request):
         dictData=request.data
