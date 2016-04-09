@@ -4,10 +4,18 @@ import time
 import redis
 import requests
 import time
+import socket
 import gevent
 from redis_lock import RedisLock
 
-globalRedisSettings={'redisHostname':'127.0.0.1','redisPort':6379,'redisDb':0,'prefixInRedis':'URL','checkInterval':1}
+debug=True #switch to show or not show message
+globalRedisSettings={'redisHostname':socket.gethostbyname('db'),'redisPort':6379,'redisDb':0,'prefixInRedis':'URL','checkInterval':1}
+
+def debug(msg):
+    if debug==True:
+        print msg
+    else:
+        pass
 
 #design pattern begin        
 def singleton(class_):
@@ -76,7 +84,7 @@ class WebSiteStatusService(object):
         
     def updateKeepAliveStatusInThead(self): 
         while True:
-            print 'keep alive'
+            debug('keep alive')
             runStatus=self.redisConnection.setex('KEEPALIVE','TRUE',2)
             time.sleep(1)
             
@@ -84,15 +92,10 @@ class WebSiteStatusService(object):
         while True:
             runStatus=self.redisConnection.get('STATUS')
             if (runStatus=='STOP') or (runStatus is None): #check and do nothing
-                #self.lock.acquire()
-                print 'no timestamp'
-                #self.lock.release()
+                debug('no timestamp')
             elif runStatus=='RUN':
-                #check and update the timestamp
                 self.redisConnection.set('TIMESTAMP',int(time.time()))
-                #self.lock.acquire()
-                print 'do timestamp'
-                #self.lock.release()
+                debug('do timestamp')
                 time.sleep(self.checkInterval)
             else:
                 pass
@@ -102,17 +105,17 @@ class WebSiteStatusService(object):
         while True: #this thread will loop forever
             runStatus=self.redisConnection.get('STATUS')
             if (runStatus=='STOP') or (runStatus is None): #check and do nothing
-                print 'no check'
+                debug('no check')
             elif runStatus=='RUN':
-                print 'do check'
+                debug('do check')
                 webSiteStatus=WebSiteStatus()
                 for oneUrl in self.redisConnection.smembers('SITES'):
                     webSiteStatus.addSiteUrl(oneUrl)
-                print 'happen this 1'
+                debug('happen this 1')
                 #webSiteStatus.addSiteUrl(oneUrl)
                 webSiteStatus.checkAll()
                 (urlList,stateList)=webSiteStatus.getStatusList()
-                print 'happen this 2'
+                debug('happen this 2')
                 #append the site state into redis
                 for oneUrl,oneState in zip(urlList,stateList):
                     key=self.prefixInRedis+':'+oneUrl
