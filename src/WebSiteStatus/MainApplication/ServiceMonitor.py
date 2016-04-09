@@ -4,10 +4,11 @@ import time
 import redis
 import requests
 import time
+import socket
 import gevent
 from redis_lock import RedisLock
 
-globalRedisSettings={'redisHostname':'127.0.0.1','redisPort':6379,'redisDb':0,'prefixInRedis':'URL','checkInterval':1}
+globalRedisSettings={'redisHostname':socket.gethostbyname('db'),'redisPort':6379,'redisDb':0,'prefixInRedis':'URL','checkInterval':1}
 
 #design pattern begin        
 def singleton(class_):
