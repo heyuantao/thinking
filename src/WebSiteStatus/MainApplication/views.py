@@ -51,7 +51,7 @@ class AddUrl(APIView):
         serviceMonitor=ServiceMonitor()
         serviceMonitor.addUrlList(urlList)
         return Response(successStatus)
-#  {"urls":["www.sina.com.cn","www.zol.com.cn"]}    
+#  {"urls":["http://www.sina.com.cn","http://www.zol.com.cn"]}    
 class RemoveUrl(APIView):
     def get(self,request):
         return Response(successStatus)

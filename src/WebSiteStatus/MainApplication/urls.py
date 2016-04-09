@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.conf import settings
 from rest_framework.urlpatterns import format_suffix_patterns
 from MainApplication.views import ServiceStatus, AddUrl,RemoveUrl,UrlList,\
      SiteStatus
@@ -25,6 +26,10 @@ urlpatterns = [
     url(r'^url/remove/', RemoveUrl.as_view()),
     url(r'^url/list/', UrlList.as_view()),
     url(r'^status/', SiteStatus.as_view()),
+    url(r'^$', SiteStatus.as_view()),
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root':settings.MEDIA_ROOT}),
+    url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root':settings.MEDIA_ROOT}),
+   
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
