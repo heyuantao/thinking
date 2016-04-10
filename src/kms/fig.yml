@@ -1,4 +1,4 @@
-kms:
+active:
  build: .
  command: python /opt/py-kms/server.py
  ports:
