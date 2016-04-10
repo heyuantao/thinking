@@ -1,0 +1,6 @@
+shadowsocks:
+ build: .
+ command: python /usr/local/bin/sslocal -c /etc/shadowsocks.json
+ ports:
+  - "1080:1080"
+
