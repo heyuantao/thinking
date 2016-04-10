@@ -1,0 +1,6 @@
+kms:
+ build: .
+ command: python /opt/py-kms/server.py
+ ports:
+  - "1688:1688"
+
