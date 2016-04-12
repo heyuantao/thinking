@@ -14,16 +14,29 @@ class PingService(object):
         if len(self.ipAddressList)==0:
             self.ipStatusList=[]
         else:
-            return self.checkIpStatusInThread(self.ipAddressList)
+            return self.checkIpStatusInThread()
     def getStatusList(self):
         if len(self.ipAddressList)!=len(self.ipStatusList):
             return []
         else:
             return self.ipStatusList
-    def checkOneIpStatus(self,):
-    def checkIpStatusInThread(self,ipAddressList):
-        thread=[]
-        for i in range(0:len(ipAddressList)):
-            thread.append(gevent.)
+    def checkOneIpStatusTask(self,host):
+        r = pyping.ping(host) 
+        if r.ret_code==0:
+            return True
+        else:
+            return False
+    def checkIpStatusInThread(self):
+        threads=[gevent.spawn(self.checkOneIpStatusTask,oneAddress) for oneAddress in self.ipAddressList]
+        gevent.joinall(threads)
+        self.ipStatusList=[oneThread.value for oneThread in threads]
         
         
+if __name__=='__main__':
+    addList=['www.sina.com.cn','www.baidu.com','202.196.166.180','202.196.166.181']
+    pingService=PingService()       
+    pingService.setIpList(addList)
+    print 'begin check'
+    pingService.checkIpStatus()
+    print 'check end'
+    print pingService.getStatusList()
