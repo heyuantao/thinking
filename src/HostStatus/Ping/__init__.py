@@ -1,7 +1,7 @@
 import pyping
 import gevent
 
-class PingService(object):
+class Ping(object):
     def __init__(self):
         self.hostList=[]
         self.hostStatusList=[]
@@ -38,10 +38,10 @@ class PingService(object):
         self.hostStatusList=[oneThread.value[0] for oneThread in threads]
         self.hostAverageRTT=[oneThread.value[1] for oneThread in threads]
         
-        
-if __name__=='__main__':
+
+def unitTest():
     addList=['www.sina.com.cn','www.baidu.com','202.196.166.180','202.196.166.181']
-    pingService=PingService()       
+    pingService=Ping()       
     pingService.setIpList(addList)
     print 'begin check'
     pingService.checkIpStatus()
@@ -49,4 +49,6 @@ if __name__=='__main__':
     print pingService.getStatusList()
     print pingService.getAverageRTTList()
     for item in pingService.getAverageRTTList():
-        print type(item)
+        print type(item)        
+if __name__=='__main__':
+    pass
