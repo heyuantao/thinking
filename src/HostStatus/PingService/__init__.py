@@ -3,33 +3,40 @@ import gevent
 
 class PingService(object):
     def __init__(self):
-        self.ipAddressList=[]
-        self.ipStatusList=[]
-    def setIpList(self,ipAddressList):
-        if not type(self.ipAddressList) is list:
+        self.hostList=[]
+        self.hostStatusList=[]
+        self.hostAverageRTT=[]
+    def setIpList(self,hostList):
+        if not type(self.hostList) is list:
             return
         else:
-            self.ipAddressList=ipAddressList
+            self.hostList=hostList
     def checkIpStatus(self):
-        if len(self.ipAddressList)==0:
-            self.ipStatusList=[]
+        if len(self.hostList)==0:
+            self.hostStatusList=[]
         else:
             return self.checkIpStatusInThread()
     def getStatusList(self):
-        if len(self.ipAddressList)!=len(self.ipStatusList):
+        if len(self.hostList)!=len(self.hostStatusList):
             return []
         else:
-            return self.ipStatusList
-    def checkOneIpStatusTask(self,host):
+            return self.hostStatusList
+    def getAverageRTTList(self):
+        if len(self.hostList)!=len(self.hostAverageRTT):
+            return []
+        else:
+            return self.hostAverageRTT        
+    def checkOneHostStatusTask(self,host):
         r = pyping.ping(host) 
         if r.ret_code==0:
-            return True
+            return (True,float(r.avg_rtt))
         else:
-            return False
+            return (False,float(-1))
     def checkIpStatusInThread(self):
-        threads=[gevent.spawn(self.checkOneIpStatusTask,oneAddress) for oneAddress in self.ipAddressList]
+        threads=[gevent.spawn(self.checkOneHostStatusTask,oneHost) for oneHost in self.hostList]
         gevent.joinall(threads)
-        self.ipStatusList=[oneThread.value for oneThread in threads]
+        self.hostStatusList=[oneThread.value[0] for oneThread in threads]
+        self.hostAverageRTT=[oneThread.value[1] for oneThread in threads]
         
         
 if __name__=='__main__':
@@ -40,3 +47,6 @@ if __name__=='__main__':
     pingService.checkIpStatus()
     print 'check end'
     print pingService.getStatusList()
+    print pingService.getAverageRTTList()
+    for item in pingService.getAverageRTTList():
+        print type(item)
