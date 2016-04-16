@@ -9,7 +9,7 @@ class SystemSettings(object):
         if created is True:
             return ""
         else:
-            obj.value
+            return obj.value
     @classmethod
     def setHostId(cls,value):
         obj,created=KeyValueStorage.objects.get_or_create(key=cls.hostIdKeyName)
@@ -21,7 +21,7 @@ class SystemSettings(object):
         if created is True:
             return ""
         else:
-            obj.value    
+            return obj.value    
     @classmethod    
     def setHostSecret(cls,value):
         obj,created=KeyValueStorage.objects.get_or_create(key=cls.hostSecretKeyName)

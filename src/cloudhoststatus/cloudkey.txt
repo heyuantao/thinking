@@ -1,3 +1,5 @@
-   id="197997"
-   key="private_iXuEESKJiosuVuKzeru3ACAr"
+ {
+   "id":"197997",
+   "secret":"private_iXuEESKJiosuVuKzeru3ACAr"
+  }
  

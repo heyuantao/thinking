@@ -2,9 +2,11 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import urls
+import json
 from BandwagonHostService import BandwagonHostService
 from hostinformation.models import KeyValueStorage
 from utils import SystemSettings
+
 
 successStatus={"status":"success"}
 rejectStatus={"status":"reject"}
@@ -22,20 +24,20 @@ class IndexPage(APIView):
     
 class HostStatus(APIView):
     def get(self,request):
-        '''
-        BandwagonHostService=BandwagonHostService()
-        serverStatusDict={}
-        if serviceMonitor.isServiceProcessDown():
-            serverStatusDict['server_status']='down'
-            serverStatusDict['support_status']=self.supportStatus
-            return Response(serverStatusDict)
-        #otherwise the service is in run or stop status
-        else:
-            serverStatus=serviceMonitor.getServiceStatus()        
-            serverStatusDict['server_status']=serverStatus
-            serverStatusDict['support_status']=self.supportStatus
-        '''
-        return Response(successStatus)
+        hostId=SystemSettings.getHostId()
+        hostSecret=SystemSettings.getHostSecret()
+        print hostId,hostSecret
+        #the hostId and hostSecret my be empty because it was not set
+        if ((hostId=="") or (hostSecret=="")):
+            return Response(rejectStatus)
+        
+        statusDict={}
+        bandwagonHostService=BandwagonHostService(id=hostId,key=hostSecret)
+        #print bandwagonHostService.getBasicInformation()
+        statusDict['basic_information']=json.loads(bandwagonHostService.getBasicInformation())
+        statusDict['service_information']=json.loads(bandwagonHostService.getServiceInformation())
+        
+        return Response(statusDict)
     def post(self,request):
         dictData=request.data
         return Response(rejectStatus,status=status.HTTP_403_FORBIDDEN)

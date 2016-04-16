@@ -20,6 +20,7 @@ class BandwagonHostService(object):
         self.hostBasicInformationJson=httpRequest.content.encode("utf-8")
     def getBasicInformation(self):
         requestUrl = "https://api.64clouds.com/v1/getServiceInfo?veid=%s&api_key=%sE" %(self.id,self.key)
+        #print requestUrl
         httpRequest=requests.get(requestUrl)
         return httpRequest.content.encode("utf-8")
     def getServiceInformation(self):
