@@ -1,7 +1,8 @@
 import requests
 import json
+import cloudhoststatus
 
-DEBUG=True
+DEBUG=cloudhoststatus.settings.DEBUG
 
 def debugMessage(msg):
     if DEBUG is True:
@@ -9,7 +10,7 @@ def debugMessage(msg):
     else:
         pass
     
-class BandwagonHost(object):
+class BandwagonHostService(object):
     def __init__(self,id,key):
         self.id=id
         self.key=key
