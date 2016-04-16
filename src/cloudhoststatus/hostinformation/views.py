@@ -4,6 +4,7 @@ from rest_framework.response import Response
 import urls
 from BandwagonHostService import BandwagonHostService
 from hostinformation.models import KeyValueStorage
+from utils import SystemSettings
 
 successStatus={"status":"success"}
 rejectStatus={"status":"reject"}
@@ -40,9 +41,6 @@ class HostStatus(APIView):
         return Response(rejectStatus,status=status.HTTP_403_FORBIDDEN)
 
 class HostSetting(APIView):
-    def __init__(self):
-        self.hostIdKeyName="hostId"
-        self.hostSecretKeyName="hostSecret"
     def get(self,request):
         format={"id":"","secret":""}
         return Response(format)
@@ -51,16 +49,11 @@ class HostSetting(APIView):
         #print dictData
         try:
             hostIdValue=dictData['id'].encode('utf-8')
-            hostSecretValue=dictData['secret'].encode('utf-8')
+            hostSecretValue=dictData['secret'].encode('utf-8')        
+            # save the data to database
+            SystemSettings.setHostId(hostIdValue)
+            SystemSettings.setHostSecret(hostSecretValue)
         except Exception :            
             return Response(rejectStatus)
-        
-        idobj,created=KeyValueStorage.objects.get_or_create(key=self.hostIdKeyName)
-        idobj.value=hostIdValue
-        idobj.save()
-        secobj,created=KeyValueStorage.objects.get_or_create(key=self.hostSecretKeyName)
-        secobj.value=hostSecretValue
-        secobj.save()
-        
         return Response(successStatus)
         
