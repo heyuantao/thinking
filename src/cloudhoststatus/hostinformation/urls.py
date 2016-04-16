@@ -22,6 +22,7 @@ from hostinformation.views import IndexPage,HostStatus
 
 urlpatterns = [
     url(r'^$', IndexPage.as_view()),
+    url(r'^hostsettings/', IndexPage.as_view()),
     url(r'^status/', HostStatus.as_view()),
     #url(r'^admin/', admin.site.urls),
 ]

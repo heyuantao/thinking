@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 import urls
 from BandwagonHostService import BandwagonHostService
+from hostinformation.models import KeyValueStorage
 
 successStatus={"status":"success"}
 rejectStatus={"status":"reject"}
@@ -38,3 +39,15 @@ class HostStatus(APIView):
         dictData=request.data
         return Response(rejectStatus,status=status.HTTP_403_FORBIDDEN)
 
+class HostSetting(APIView):
+    def get(self,request):
+        return Response(successStatus)
+    def post(self,request):
+        dictData=request.data
+        try:
+            hostId=dictData['id'].encode('utf-8')
+            hostKey=dictData['key'].encode('utf-8')
+            oneKeyValue=KeyValueStorage(key=hostId,value=hostKey)
+            oneKeyValue.save()
+        except Exception:            
+            return Response(rejectStatus)
