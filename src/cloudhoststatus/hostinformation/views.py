@@ -36,7 +36,7 @@ class HostStatus(APIView):
         #print bandwagonHostService.getBasicInformation()
         statusDict['basic_information']=json.loads(bandwagonHostService.getBasicInformation())
         statusDict['service_information']=json.loads(bandwagonHostService.getServiceInformation())
-        
+        statusDict['available_os']=json.loads(bandwagonHostService.getAvailableOS())
         return Response(statusDict)
     def post(self,request):
         dictData=request.data
