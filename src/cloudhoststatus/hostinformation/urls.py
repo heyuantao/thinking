@@ -18,11 +18,11 @@ from django.contrib import admin
 from django.conf.urls import include,patterns
 from rest_framework.urlpatterns import format_suffix_patterns
 import hostinformation
-from hostinformation.views import IndexPage,HostStatus
+from hostinformation.views import IndexPage,HostStatus,HostSetting
 
 urlpatterns = [
     url(r'^$', IndexPage.as_view()),
-    url(r'^hostsettings/', IndexPage.as_view()),
+    url(r'^settings/', HostSetting.as_view()),
     url(r'^status/', HostStatus.as_view()),
     #url(r'^admin/', admin.site.urls),
 ]

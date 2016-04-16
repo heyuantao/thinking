@@ -40,14 +40,27 @@ class HostStatus(APIView):
         return Response(rejectStatus,status=status.HTTP_403_FORBIDDEN)
 
 class HostSetting(APIView):
+    def __init__(self):
+        self.hostIdKeyName="hostId"
+        self.hostSecretKeyName="hostSecret"
     def get(self,request):
-        return Response(successStatus)
+        format={"id":"","secret":""}
+        return Response(format)
     def post(self,request):
         dictData=request.data
+        #print dictData
         try:
-            hostId=dictData['id'].encode('utf-8')
-            hostKey=dictData['key'].encode('utf-8')
-            oneKeyValue=KeyValueStorage(key=hostId,value=hostKey)
-            oneKeyValue.save()
-        except Exception:            
+            hostIdValue=dictData['id'].encode('utf-8')
+            hostSecretValue=dictData['secret'].encode('utf-8')
+        except Exception :            
             return Response(rejectStatus)
+        
+        idobj,created=KeyValueStorage.objects.get_or_create(key=self.hostIdKeyName)
+        idobj.value=hostIdValue
+        idobj.save()
+        secobj,created=KeyValueStorage.objects.get_or_create(key=self.hostSecretKeyName)
+        secobj.value=hostSecretValue
+        secobj.save()
+        
+        return Response(successStatus)
+        
