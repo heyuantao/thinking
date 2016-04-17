@@ -19,12 +19,15 @@ from django.conf.urls import include,patterns
 from rest_framework.urlpatterns import format_suffix_patterns
 import hostinformation
 from hostinformation.views import IndexPage,HostStatus,HostSetting
+from cloudhoststatus import settings
 
 urlpatterns = [
     url(r'^$', IndexPage.as_view()),
     url(r'^settings/', HostSetting.as_view()),
     url(r'^status/', HostStatus.as_view()),
     #url(r'^admin/', admin.site.urls),
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root':settings.MEDIA_ROOT}),
+    url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root':settings.MEDIA_ROOT}),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
