@@ -1,5 +1,16 @@
 import pyping
-import gevent
+import multiprocessing
+#import gevent
+def checkOneHostStatusTask(queue,host):
+    print 'ping begin',host
+    r = pyping.ping(host) 
+    print 'ping end',host
+    if r.ret_code==0:
+        #return (True,float(r.avg_rtt))
+        queue.put((True,host))
+    else:
+        #return (False,float(-1))
+        queue.put((False,host))
 
 class Ping(object):
     def __init__(self):
@@ -26,19 +37,23 @@ class Ping(object):
             return []
         else:
             return self.hostAverageRTT        
-    def checkOneHostStatusTask(self,host):
-        print 'ping',host
-        r = pyping.ping(host) 
-        if r.ret_code==0:
-            return (True,float(r.avg_rtt))
-        else:
-            return (False,float(-1))
+
+    def checkIpStatusInThread(self):
+        queue = multiprocessing.Queue(300)
+        processList=[multiprocessing.Process(target=checkOneHostStatusTask,args=(queue,oneHost)) for oneHost in self.hostList]
+        for process in processList:
+            process.start()
+        for process in processList:
+            process.join()
+        while not queue.empty():
+            print queue.get()
+        '''
     def checkIpStatusInThread(self):
         threads=[gevent.spawn(self.checkOneHostStatusTask,oneHost) for oneHost in self.hostList]
         gevent.joinall(threads)
         self.hostStatusList=[oneThread.value[0] for oneThread in threads]
         self.hostAverageRTT=[oneThread.value[1] for oneThread in threads]
-        
+        '''
 '''
 def unitTest():
     addList=['www.sina.com.cn','www.baidu.com','202.196.166.180','202.196.166.181']
