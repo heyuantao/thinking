@@ -27,6 +27,7 @@ class Ping(object):
         else:
             return self.hostAverageRTT        
     def checkOneHostStatusTask(self,host):
+        print 'ping',host
         r = pyping.ping(host) 
         if r.ret_code==0:
             return (True,float(r.avg_rtt))
@@ -38,7 +39,7 @@ class Ping(object):
         self.hostStatusList=[oneThread.value[0] for oneThread in threads]
         self.hostAverageRTT=[oneThread.value[1] for oneThread in threads]
         
-
+'''
 def unitTest():
     addList=['www.sina.com.cn','www.baidu.com','202.196.166.180','202.196.166.181']
     pingService=Ping()       
@@ -52,3 +53,5 @@ def unitTest():
         print type(item)        
 if __name__=='__main__':
     pass
+    #unitTest()
+    '''
