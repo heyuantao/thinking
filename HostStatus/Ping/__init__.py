@@ -1,19 +1,6 @@
 import pyping
 import multiprocessing
-def checkOneHostStatusTask(queue,lock,host):
-    r = pyping.ping(host) 
-    retDic={}
-    if r.ret_code==0:    
-        retDic['ip']=host
-        retDic['online']=True
-        retDic['avg_rtt']=float(r.avg_rtt)
-    else:
-        retDic['ip']=host
-        retDic['online']=False
-        retDic['avg_rtt']=float(-1)
-    lock.acquire()
-    queue.put(retDic)
-    lock.release()
+
 
 class Ping(object):
     def __init__(self):
@@ -41,25 +28,37 @@ class Ping(object):
         else:
             return self.hostAverageRTT        
 
+    def checkOneHostStatusTask(self,queue,lock,host):
+        r = pyping.ping(host) 
+        retDic={}
+        retDic['ip']=host
+        if r.ret_code==0:            
+            retDic['online']=True
+            retDic['avg_rtt']=float(r.avg_rtt)
+        else:
+            retDic['online']=False
+            retDic['avg_rtt']=float(-1)
+        lock.acquire()
+        queue.put(retDic)
+        lock.release()
+
     def checkIpStatusInThread(self):
-        queue = multiprocessing.Queue(600)
+        queue = multiprocessing.Queue(1000)
         lock=multiprocessing.Lock()
-        for oneHost in self.hostList:
-            print oneHost
-        processList=[multiprocessing.Process(target=checkOneHostStatusTask,args=(queue,lock,oneHost)) for oneHost in self.hostList]
-        for process in processList:
-            process.start()
-        for process in processList:
-            process.join()
+        processList=[multiprocessing.Process(target=self.checkOneHostStatusTask,args=(queue,lock,oneHost,)) for oneHost in self.hostList]
+        
+        for oneProcess in processList:
+            oneProcess.start()
+        for oneProcess in processList:
+            oneProcess.join()
+        
         while not queue.empty():
-            print queue.get()['ip'],queue.get()['online']
-        '''
-    def checkIpStatusInThread(self):
-        threads=[gevent.spawn(self.checkOneHostStatusTask,oneHost) for oneHost in self.hostList]
-        gevent.joinall(threads)
-        self.hostStatusList=[oneThread.value[0] for oneThread in threads]
-        self.hostAverageRTT=[oneThread.value[1] for oneThread in threads]
-        '''
+            one=queue.get()
+            self.hostList.append(one['ip'])
+            self.hostStatusList.append(one['online'])
+            self.hostAverageRTT.append(one['avg_rtt'])
+            
+            
 '''
 def unitTest():
     addList=['www.sina.com.cn','www.baidu.com','202.196.166.180','202.196.166.181']

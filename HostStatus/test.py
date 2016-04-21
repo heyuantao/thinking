@@ -2,8 +2,10 @@ from IPv4Network  import  IPv4Network
 import os
 
 if __name__=="__main__":
-    ipv4Network=IPv4Network('192.168.20.0/24')
+    ipv4Network=IPv4Network('192.168.10.0/24')
     #print ipv4Network.getIpList()
+    ipv4Network.getPingStatusOfNetwork()
+    print ipv4Network.getIpList()
     print ipv4Network.getPingStatusOfNetwork()
     #print iPv4Network.isValid()
     #net=IPNetwork('10.0.2.0/24')

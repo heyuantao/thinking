@@ -23,6 +23,8 @@ class IPv4Network(object):
     def getPingStatusOfNetwork(self):
         ping=Ping()
         ipList=[str(ip) for ip in self.networkObject]
+        ipList.remove(str(self.networkObject.network))
+        ipList.remove(str(self.networkObject.broadcast))
         ping.setIpList(ipList)
         ping.checkIpStatus()
         ipStatusList=ping.getStatusList()
