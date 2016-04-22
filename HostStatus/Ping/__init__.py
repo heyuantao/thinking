@@ -3,15 +3,16 @@ import multiprocessing
 
 
 class Ping(object):
-    def __init__(self):
+    def __init__(self,hostList):
         self.hostList=[]
         self.hostStatusList=[]
         self.hostAverageRTT=[]
-    def setIpList(self,hostList):
+        #check the param type
         if not type(self.hostList) is list:
-            return
+            raise Exception('host list is not list !')
         else:
             self.hostList=hostList
+            
     def checkIpStatus(self):
         if len(self.hostList)==0:
             self.hostStatusList=[]
