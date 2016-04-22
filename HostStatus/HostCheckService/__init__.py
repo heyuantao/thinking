@@ -4,7 +4,7 @@ import threading
 
 db='localhost'
 #global settings
-globalSettingsDict={'checkInterval':2,'redisHost':db,'redisPort':6379,'redisDb':0}
+globalSettingsDict={'checkInterval':1,'redisHost':db,'redisPort':6379,'redisDb':0}
 
 class HostCheckService(object):
     def __init__(self,settingsDict=globalSettingsDict):
@@ -41,8 +41,7 @@ class HostCheckService(object):
                 print 'check'
             time.sleep(self.checkInterval)
 
-def unitTest():
-    print 'main'
+def unitTestForHostCheckService():
     hostCheckService=HostCheckService()    
     print 'start'
     hostCheckService.start()    
@@ -52,4 +51,4 @@ def unitTest():
     time.sleep(10)
     
 if __name__=='__main__':
-    unitTest()          
+    unitTestForHostCheckService()          
