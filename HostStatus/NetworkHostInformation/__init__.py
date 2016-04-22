@@ -10,6 +10,6 @@ class NetworkHostInformation(object):
         return self.hosts_list
 
 if __name__=='__main__':
-    networkHostInformation=NetworkHostInformation('192.168.37.0/24')
+    networkHostInformation=NetworkHostInformation('192.168.33.0/24')
     print networkHostInformation.getHostStatus()
     
