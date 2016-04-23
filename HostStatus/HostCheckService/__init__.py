@@ -2,6 +2,7 @@ import redis
 import time
 import threading
 import gevent
+import threading
 from netaddr import IPNetwork
 from NetworkHostInformation import NetworkHostInformation
 
@@ -68,15 +69,17 @@ class HostCheckService(object):
         while True:
             if self.__needCheck()==False:
                 networkList=self.redisConnection.smembers('NETWORKS')
-                gevents=[gevent.spawn(self.hostCheckGevent, oneNetwork) for oneNetwork in networkList]
+                #gevents=[gevent.spawn(self.hostCheckGevent, oneNetwork) for oneNetwork in networkList]
+                threadList=[threading.Thread(target=self.hostCheckTask, args=(oneNetwork,)) for oneNetwork in networkList]
                 #print 'create gevents'
-                gevent.joinall(gevents) 
+                [thread.start() for thread in threadList]
+                [thread.join() for thread in threadList]
                 #update the timestamp after every check
                 self.redisConnection.set('TIMESTAMP',int(time.time()))
             else:
                 pass            
             time.sleep(self.checkInterval)
-    def hostCheckGevent(self,network):
+    def hostCheckTask(self,network):
         #returnDict={}
         networkHostInformation=NetworkHostInformation(network)
         hostDict=networkHostInformation.getHostStatus()
