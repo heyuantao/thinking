@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'MainApplication',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -49,6 +51,14 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+'''
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
+'''
 
 ROOT_URLCONF = 'networkhoststatus.urls'
 
@@ -118,4 +128,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/networkhoststatus/static/'
+MEDIA_URL = '/networkhoststatus/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
