@@ -1,16 +1,16 @@
-from IPv4Network  import  IPv4Network
 import os
+import time
+from HostCheckService import HostCheckService
 
-if __name__=="__main__":
-    ipv4Network=IPv4Network('192.168.10.0/24')
-    #print ipv4Network.getIpList()
-    ipv4Network.getPingStatusOfNetwork()
-    print ipv4Network.getIpList()
-    print ipv4Network.getPingStatusOfNetwork()
-    #print iPv4Network.isValid()
-    #net=IPNetwork('10.0.2.0/24')
-    #print net.netmask ,net.broadcast
-    #print net.prefixlen
-    #ipList=list(net)
-    #for item in ipList:
-    #    print str(item)
+def unitTestForMain():
+    hostCheckService=HostCheckService()    
+    print 'start'
+    hostCheckService.addNetwork('192.168.133.0/24') 
+    hostCheckService.addNetwork('192.168.132.0/24') 
+    time.sleep(50)
+    print 'stop'
+    hostCheckService.stop()
+    time.sleep(5)
+    
+if __name__=='__main__':
+    unitTestForMain()   
