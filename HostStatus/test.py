@@ -7,6 +7,7 @@ def unitTestForMain():
     print 'start'
     hostCheckService.addNetwork('192.168.133.0/24') 
     hostCheckService.addNetwork('192.168.132.0/24') 
+    hostCheckService.addNetwork('192.168.130.0/24') 
     time.sleep(50)
     print 'stop'
     hostCheckService.stop()

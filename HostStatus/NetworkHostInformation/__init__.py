@@ -28,12 +28,5 @@ class NetworkHostInformation(object):
             hostStatusDic[x]=nm[x]['status']['state']
         return hostStatusDic
 
-def unitTestForNetworkHostInformation():
-    #networkHostInformation=NetworkHostInformation('202.196.166.1/24')
-    #print networkHostInformation.getHostStatus()
-    networkHostInformation=NetworkHostInformation('192.168.132.0/24')
-    print networkHostInformation.getHostStatus()
-    
-if __name__=='__main__':
-    unitTestForNetworkHostInformation()
+
     

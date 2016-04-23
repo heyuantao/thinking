@@ -39,7 +39,7 @@ class HostCheckService(object):
     def addNetwork(self,network):
         self.networkObject=IPNetwork(network)
         if self.networkObject.prefixlen!=24:
-            return
+            raise Exception("only support 24bit mask network type !")
         self.redisConnection.sadd('NETWORKS',network)
     def rmNetwork(self,network):
         self.networkObject=IPNetwork(network)
@@ -69,9 +69,8 @@ class HostCheckService(object):
         while True:
             if self.__needCheck()==False:
                 networkList=self.redisConnection.smembers('NETWORKS')
-                #gevents=[gevent.spawn(self.hostCheckGevent, oneNetwork) for oneNetwork in networkList]
                 threadList=[threading.Thread(target=self.hostCheckTask, args=(oneNetwork,)) for oneNetwork in networkList]
-                #print 'create gevents'
+                
                 [thread.start() for thread in threadList]
                 [thread.join() for thread in threadList]
                 #update the timestamp after every check
@@ -84,7 +83,8 @@ class HostCheckService(object):
         networkHostInformation=NetworkHostInformation(network)
         hostDict=networkHostInformation.getHostStatus()
         #returnDict[network]=hostDict
-        print 'check',network
-        self.redisConnection[network]=hostDict
+        #print 'check',network
+        networkTag="IP:"+network
+        self.redisConnection[networkTag]=hostDict
     
         
