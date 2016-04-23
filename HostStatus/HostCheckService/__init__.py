@@ -1,6 +1,7 @@
 import redis
 import time
 import threading
+from netaddr import IPNetwork
 
 db='localhost'
 #global settings
@@ -12,18 +13,36 @@ class HostCheckService(object):
         self.redisHost=settingsDict['redisHost']
         self.redisPort=settingsDict['redisPort']
         self.redisDb=settingsDict['redisDb']
+        #check condition
+        if self.checkInterval<=1:
+            raise Exception("check interval time below than one !")
+        
+        #begin create the database and start the thread
         self.redisConnection=redis.Redis(host=self.redisHost,port=self.redisPort,db=self.redisDb)
         
         mainThread=threading.Thread(target=self.mainThreadLoop,args=())
+        timestampThread=threading.Thread(targes=self.updateTimestampAndKeepAliveStatusInThread,args=())
         mainThread.daemon=True
+        timestampThread.daemon=True
         mainThread.start()
+        timestampThread.start()
         
     def start(self):
         self.redisConnection.set('STATUS','RUN')
         
     def stop(self):
         self.redisConnection.set('STATUS','STOP')
-        
+       
+    def addNetwork(self,network):
+        self.networkObject=IPNetwork(self.networkAddress)
+        if self.networkObject.prefixlen!=24:
+            return
+        self.redisConnection.sadd('NETWORKS',network)
+    def rmNetwork(self,network):
+        self.networkObject=IPNetwork(self.networkAddress)
+        if self.networkObject.prefixlen!=24:
+            return
+        self.redisConnection.srem('NETWORKS',network)
     def __needCheck(self):
         runStatus=self.redisConnection.get('STATUS')
         if runStatus is None:
@@ -32,13 +51,26 @@ class HostCheckService(object):
             return True
         if runStatus=='STOP':
             return False
-        
+    #def checkNetworksIn   
+    def updateTimestampAndKeepAliveStatusInThread(self):
+        while True:
+            runStatus=self.redisConnection.get('STATUS')
+            if (runStatus=='STOP') or (runStatus is None): #check and do nothing
+                pass
+            elif runStatus=='RUN':
+                self.redisConnection.set('TIMESTAMP',int(time.time()))
+            #update the keep alive status,self.checkInterval is timeout time
+            self.redisConnection.setex('KEEPALIVE','TRUE',self.checkInterval)
+            time.sleep(self.checkInterval)
     def mainThreadLoop(self):#continue forever
         while True:
             if self.__needCheck()==False:
-                print 'not check'
+                #check the network in multithread
+                pass
+                #print 'not check'
             else:
-                print 'check'
+                pass
+                #print 'check'
             time.sleep(self.checkInterval)
 
 def unitTestForHostCheckService():
