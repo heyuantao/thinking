@@ -1,7 +1,9 @@
 import redis
 import time
 import threading
+import gevent
 from netaddr import IPNetwork
+from NetworkHostInformation import NetworkHostInformation
 
 db='localhost'
 #global settings
@@ -65,14 +67,18 @@ class HostCheckService(object):
     def mainThreadLoop(self):#continue forever
         while True:
             if self.__needCheck()==False:
-                #check the network in multithread
+                gevents=[gevent.spawn(fetch, i) for i in range(10)]
                 pass
-                #print 'not check'
             else:
                 pass
-                #print 'check'
             time.sleep(self.checkInterval)
-
+    def hostCheckGevent(self,network):
+        returnDict={}
+        networkHostInformation=NetworkHostInformation(network)
+        hostDict=networkHostInformation.getHostStatus()
+        returnDict[network]=hostDict
+        return returnDict
+    
 def unitTestForHostCheckService():
     hostCheckService=HostCheckService()    
     print 'start'
