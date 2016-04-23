@@ -1,3 +1,0 @@
-multiprocessing
-netaddr
-pyping
