@@ -67,16 +67,14 @@ class HostCheckService(object):
             time.sleep(int(self.checkInterval)-1)
     def mainThreadLoop(self):#continue forever
         while True:
-            if self.__needCheck()==False:
-                networkList=self.redisConnection.smembers('NETWORKS')
+            networkList=self.redisConnection.smembers('NETWORKS')
+            if (self.__needCheck()==True) and( len(networkList)>0 ):                
                 threadList=[threading.Thread(target=self.hostCheckTask, args=(oneNetwork,)) for oneNetwork in networkList]
                 
                 [thread.start() for thread in threadList]
                 [thread.join() for thread in threadList]
                 #update the timestamp after every check
                 self.redisConnection.set('TIMESTAMP',int(time.time()))
-            else:
-                pass            
             time.sleep(self.checkInterval)
     def hostCheckTask(self,network):
         #returnDict={}
