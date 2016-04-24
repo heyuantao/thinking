@@ -1,4 +1,4 @@
-FROM python:2.7
+FROM hyt:django
 ADD . /opt
 WORKDIR /opt
 #RUN apt-get update
