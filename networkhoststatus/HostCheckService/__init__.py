@@ -1,8 +1,6 @@
 import redis
 import time
 import threading
-import gevent
-import threading
 import socket
 from DesignPattern import singleton
 from netaddr import IPNetwork
