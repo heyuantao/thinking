@@ -17,17 +17,21 @@ class NetworkHostInformation(object):
         nm = nmap.PortScanner()
         nm.scan(hosts=self.networkAddress, arguments='-n -sP -PE')
         print 'check finished !'
-        hostStatusDic={}
+        hostStatusList=[]
+        
         #self.hosts_list = [(x, nm[x]['status']['state']) for x in nm.all_hosts()]
         for x in nm.all_hosts():
+            oneHostStatusDic={}
             if self.networkObject.network==x:
                 #print 'network'
                 continue
             if self.networkObject.broadcast==x:
                 #print 'boardcast'
                 continue
-            hostStatusDic[x]=nm[x]['status']['state']
-        return hostStatusDic
+            oneHostStatusDic['ip']=x
+            oneHostStatusDic['status']=nm[x]['status']['state']
+            hostStatusList.append(oneHostStatusDic)
+        return hostStatusList
 
 
     
