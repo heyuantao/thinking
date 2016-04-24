@@ -3,13 +3,14 @@ import time
 import threading
 import gevent
 import threading
+import socket
 from DesignPattern import singleton
 from netaddr import IPNetwork
 from NetworkHostInformation import NetworkHostInformation
 
-db='localhost'
+#db='localhost'
 #global settings
-globalSettingsDict={'checkInterval':20,'redisHost':db,'redisPort':6379,'redisDb':0}
+globalSettingsDict={'checkInterval':20,'redisHost':socket.gethostbyname('db'),'redisPort':6379,'redisDb':0}
 
 #this object is used by django app
 @singleton
