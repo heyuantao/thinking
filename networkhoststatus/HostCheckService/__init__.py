@@ -73,7 +73,7 @@ class HostCheckServiceMonitor(object):
         for oneNetworkWithPrefix in networkListWithPrefix:
             oneNetworkStatus=self.redisConnection.get(oneNetworkWithPrefix)
             statusList.append(oneNetworkStatus)
-        print statusList
+        #print statusList
         networkDict={}
         for network,status in zip(networkList,statusList):
             networkDict[network]=status
