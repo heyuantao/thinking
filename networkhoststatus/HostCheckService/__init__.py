@@ -66,6 +66,7 @@ class HostCheckServiceMonitor(object):
         return returnDict
         
     def getNetworkStatus(self):  
+        self.__clearNetworkNotInList()
         keyPattern="IP"+':*' #'URL:*'
         networkListWithPrefix=self.redisConnection.keys(pattern=keyPattern)
         networkList=[self.__removePrefix(item) for item in networkListWithPrefix ]
@@ -80,6 +81,17 @@ class HostCheckServiceMonitor(object):
         returnDict={}
         returnDict['networks']=networkDict
         return returnDict
+    def __clearNetworkNotInList(self):
+        keyPattern="IP"+':*' #'URL:*'
+        networkListWithPrefix=self.redisConnection.keys(pattern=keyPattern)
+        networkList=[self.__removePrefix(item) for item in networkListWithPrefix ]  
+        
+        networkListSet=self.redisConnection.smembers('NETWORKS')
+        networkListToBeCheck=[network for network in networkListSet]
+        
+        for oneNetwork in networkList:
+            if not oneNetwork in networkListToBeCheck:
+                self.redisConnection.delete('IP:'+oneNetwork)
         
     def __removePrefix(self,string):
         stringArray=string.split(':')
@@ -154,6 +166,7 @@ class HostCheckService(object):
                 [thread.join() for thread in threadList]
                 #update the timestamp after every check
                 self.redisConnection.set('TIMESTAMP',int(time.time()))
+                
             time.sleep(self.checkInterval)
     def hostCheckTask(self,network):
         #returnDict={}
