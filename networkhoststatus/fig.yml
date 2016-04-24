@@ -1,0 +1,17 @@
+db:
+ image: redis:latest
+ expose:
+  - "6379"
+statuscheck:
+ build: .
+ command: python /opt/startBackgroundService.py
+ links:
+  - db
+web:
+ build: .
+ command: python /opt/manage.py runserver 0.0.0.0:80
+ ports:
+  - "80:80"
+ links:
+  - db
+
