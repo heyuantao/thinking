@@ -9,7 +9,7 @@ from NetworkHostInformation import NetworkHostInformation
 
 db='localhost'
 #global settings
-globalSettingsDict={'checkInterval':5,'redisHost':db,'redisPort':6379,'redisDb':0}
+globalSettingsDict={'checkInterval':20,'redisHost':db,'redisPort':6379,'redisDb':0}
 
 #this object is used by django app
 @singleton
@@ -20,21 +20,42 @@ class HostCheckServiceMonitor(object):
         self.redisPort=settingsDict['redisPort']
         self.redisDb=settingsDict['redisDb']
         #begin create the database and start the thread
-        self.hostCheckService=HostCheckService()
+        self.redisConnection=redis.Redis(host=self.redisHost,port=self.redisPort,db=self.redisDb)
         
+    def isServiceProcessDown(self):
+        keepaliveStatus=self.redisConnection.get('KEEPALIVE')        
+        if keepaliveStatus=='TRUE':
+            return False
+        else:
+            return True        
+    def getServiceStatus(self):
+        #statusDict={}
+        runStatus=self.redisConnection.get('STATUS')
+        if (runStatus is None)or(runStatus=='STOP'):
+            runStatus='stop'
+        if runStatus=='RUN':
+            runStatus='run'
+        #statusDict['service_status']=runStatus
+        return runStatus    
     def changeServiceToRun(self):
-        self.hostCheckService.start()
+        self.redisConnection.set('STATUS','RUN')
         
     def changeServiceToStop(self):
-        self.hostCheckService.stop()
+        self.redisConnection.set('STATUS','STOP')
         
     def addNetworkList(self,networkList):
         for oneNetwork in networkList:
-            self.hostCheckService.addNetwork(oneNetwork)
+            self.networkObject=IPNetwork(oneNetwork)
+            if self.networkObject.prefixlen!=24:
+                raise Exception("only support 24bit mask network type !")
+            self.redisConnection.sadd('NETWORKS',oneNetwork)
             
     def removeNetworkList(self,networkList):
         for oneNetwork in networkList:
-            self.hostCheckService.rmNetwork(oneNetwork)
+            self.networkObject=IPNetwork(oneNetwork)
+            if self.networkObject.prefixlen!=24:
+                return
+            self.redisConnection.srem('NETWORKS',oneNetwork)
             
     def getNetworkList(self):
         networkListSet=self.redisConnection.smembers('NETWORKS')
@@ -47,22 +68,26 @@ class HostCheckServiceMonitor(object):
     def getNetworkStatus(self):  
         keyPattern="IP"+':*' #'URL:*'
         networkListWithPrefix=self.redisConnection.keys(pattern=keyPattern)
-        
         networkList=[self.__removePrefix(item) for item in networkListWithPrefix ]
         statusList=[]
         for oneNetworkWithPrefix in networkListWithPrefix:
             oneNetworkStatus=self.redisConnection.get(oneNetworkWithPrefix)
             statusList.append(oneNetworkStatus)
+        print statusList
         networkDict={}
         for network,status in zip(networkList,statusList):
             networkDict[network]=status
         returnDict={}
         returnDict['networks']=networkDict
+        return returnDict
+        
     def __removePrefix(self,string):
         stringArray=string.split(':')
         newStringArray=stringArray[1:] #remove the first part this is URL
         newString=':'.join(newStringArray) #reassemble the left things
         return newString
+    
+    
 #this object is use by backgroud deamon
 class HostCheckService(object):
     def __init__(self,settingsDict=globalSettingsDict):

@@ -89,7 +89,8 @@ class NetworkList(APIView):
 class NetworkStatus(APIView):
     def get(self,request):
         serviceMonitor=HostCheckServiceMonitor()
-        statusDict=serviceMonitor.getNetworkStatus()        
+        statusDict=serviceMonitor.getNetworkStatus()    
+        #print statusDict    
         return Response(statusDict)
     def post(self,request):    
         return Response(successStatus)
