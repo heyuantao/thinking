@@ -16,6 +16,7 @@ class NetworkHostInformation(object):
     def getHostStatus(self):
         nm = nmap.PortScanner()
         nm.scan(hosts=self.networkAddress, arguments='-n -sP -PE')
+        print 'check finished !'
         hostStatusDic={}
         #self.hosts_list = [(x, nm[x]['status']['state']) for x in nm.all_hosts()]
         for x in nm.all_hosts():

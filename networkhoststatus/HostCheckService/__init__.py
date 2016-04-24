@@ -3,6 +3,7 @@ import time
 import threading
 import gevent
 import threading
+from DesignPattern import singleton
 from netaddr import IPNetwork
 from NetworkHostInformation import NetworkHostInformation
 
@@ -10,6 +11,48 @@ db='localhost'
 #global settings
 globalSettingsDict={'checkInterval':5,'redisHost':db,'redisPort':6379,'redisDb':0}
 
+#this object is used by django app
+@singleton
+class HostCheckServiceMonitor(object):
+    def __init__(self,settingsDict=globalSettingsDict):
+        self.checkInterval=settingsDict['checkInterval']
+        self.redisHost=settingsDict['redisHost']
+        self.redisPort=settingsDict['redisPort']
+        self.redisDb=settingsDict['redisDb']
+        #begin create the database and start the thread
+        self.hostCheckService=HostCheckService()
+    def changeServiceToRun(self):
+        self.hostCheckService.start()
+    def changeServiceToStop(self):
+        self.hostCheckService.stop()
+    def addUrlList(self,networkList):
+        for oneNetwork in networkList:
+            self.hostCheckService.addNetwork(oneNetwork)
+    def removeUrlList(self,networkList):
+        for oneNetwork in networkList:
+            self.hostCheckService.rmNetwork(oneNetwork)
+    def getUrlList(self):
+        keyPattern="IP"+':*' #'URL:*'
+        networkListWithPrefix=self.redisConnection.keys(pattern=keyPattern)
+        
+        networkList=[self.__removePrefix(item) for item in networkListWithPrefix ]
+        statusList=[]
+        for oneNetworkWithPrefix in networkListWithPrefix:
+            oneStatus=self.redisConnection.get(oneNetworkWithPrefix)
+            statusList.append(oneStatus)
+        networkDict={}
+        for url,status in zip(networkList,statusList):
+            networkDict[url]=status
+        returnDict={}
+        returnDict['networks']=networkDict
+    def getNetworkStatus(self):  
+        raise NotImplementedError("not implement")
+    def __removePrefix(self,string):
+        stringArray=string.split(':')
+        newStringArray=stringArray[1:] #remove the first part this is URL
+        newString=':'.join(newStringArray) #reassemble the left things
+        return newString
+#this object is use by backgroud deamon
 class HostCheckService(object):
     def __init__(self,settingsDict=globalSettingsDict):
         self.checkInterval=settingsDict['checkInterval']
