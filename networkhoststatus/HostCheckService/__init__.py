@@ -21,32 +21,43 @@ class HostCheckServiceMonitor(object):
         self.redisDb=settingsDict['redisDb']
         #begin create the database and start the thread
         self.hostCheckService=HostCheckService()
+        
     def changeServiceToRun(self):
         self.hostCheckService.start()
+        
     def changeServiceToStop(self):
         self.hostCheckService.stop()
-    def addUrlList(self,networkList):
+        
+    def addNetworkList(self,networkList):
         for oneNetwork in networkList:
             self.hostCheckService.addNetwork(oneNetwork)
-    def removeUrlList(self,networkList):
+            
+    def removeNetworkList(self,networkList):
         for oneNetwork in networkList:
             self.hostCheckService.rmNetwork(oneNetwork)
-    def getUrlList(self):
+            
+    def getNetworkList(self):
+        networkListSet=self.redisConnection.smembers('NETWORKS')
+        networkList=[oneNetwork for oneNetwork in networkListSet] #change the set into list of python
+        returnDict={}
+        #print urlList
+        returnDict['networks']=networkList
+        return returnDict
+        
+    def getNetworkStatus(self):  
         keyPattern="IP"+':*' #'URL:*'
         networkListWithPrefix=self.redisConnection.keys(pattern=keyPattern)
         
         networkList=[self.__removePrefix(item) for item in networkListWithPrefix ]
         statusList=[]
         for oneNetworkWithPrefix in networkListWithPrefix:
-            oneStatus=self.redisConnection.get(oneNetworkWithPrefix)
-            statusList.append(oneStatus)
+            oneNetworkStatus=self.redisConnection.get(oneNetworkWithPrefix)
+            statusList.append(oneNetworkStatus)
         networkDict={}
-        for url,status in zip(networkList,statusList):
-            networkDict[url]=status
+        for network,status in zip(networkList,statusList):
+            networkDict[network]=status
         returnDict={}
         returnDict['networks']=networkDict
-    def getNetworkStatus(self):  
-        raise NotImplementedError("not implement")
     def __removePrefix(self,string):
         stringArray=string.split(':')
         newStringArray=stringArray[1:] #remove the first part this is URL

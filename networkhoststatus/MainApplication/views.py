@@ -61,7 +61,7 @@ class AddNetwork(APIView):
         urlList=[oneUrl.encode('utf-8') for oneUrl in urlListWithUnicode]
         print urlList
         serviceMonitor=HostCheckServiceMonitor()
-        serviceMonitor.addUrlList(urlList)
+        serviceMonitor.addNetworkList(urlList)
         return Response(successStatus)
 #  {"networks":["192.168.1.0/24","192.168.2.0/24"]} 
 class RemoveNetwork(APIView):
@@ -73,14 +73,14 @@ class RemoveNetwork(APIView):
         urlList=[oneUrl.encode('utf-8') for oneUrl in urlListWithUnicode]
         print urlList
         serviceMonitor=HostCheckServiceMonitor()
-        serviceMonitor.removeUrlList(urlList)
+        serviceMonitor.removeNetworkList(urlList)
         return Response(successStatus)
 
 class NetworkList(APIView):
     #renderer_classes = (JSONRenderer, )
     def get(self,request):
         serviceMonitor=HostCheckServiceMonitor()
-        urlDict=serviceMonitor.getUrlList()
+        urlDict=serviceMonitor.getNetworkList()
         return Response(urlDict)
     def post(self,request):
         return Response(successStatus)
