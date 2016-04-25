@@ -5,7 +5,6 @@ import redis
 import requests
 import time
 import socket
-import gevent
 from redis_lock import RedisLock
 
 debug=True #switch to show or not show message
@@ -172,8 +171,11 @@ class WebSiteStatus(object):
             for index,oneUrl in enumerate(self.siteUrlList):
                 self.siteStatuList[index]=False            
             listLength=len(self.siteUrlList)
-            threads=[gevent.spawn(self.theTask,self.siteUrlList,self.siteStatuList,index) for index in xrange(listLength)]
-            gevent.joinall(threads)   
+            #threads=[gevent.spawn(self.theTask,self.siteUrlList,self.siteStatuList,index) for index in xrange(listLength)]
+            #gevent.joinall(threads)  
+            threadList=[threading.Thread(target=self.theTask,args=(self.siteUrlList,self.siteStatuList,index,)) for index in xrange(listLength)] 
+            [oneThread.start() for oneThread in threadList]
+            [oneThread.join() for oneThread in threadList]
         except Exception:
             pass
             #print 'genvent error happen !'
