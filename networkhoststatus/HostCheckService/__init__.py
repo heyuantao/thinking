@@ -79,6 +79,7 @@ class HostCheckServiceMonitor(object):
             networkDict[network]=status
         returnDict={}
         returnDict['networks']=networkDict
+        returnDict['timestamp']=self.redisConnection.get('TIMESTAMP')
         return returnDict
     def __clearNetworkNotInList(self):
         keyPattern="IP"+':*' #'URL:*'
