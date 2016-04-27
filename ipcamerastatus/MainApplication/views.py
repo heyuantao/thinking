@@ -10,10 +10,14 @@ rejectStatus={"status":"reject"}
 class IndexPage(APIView):
     def get(self,request):
         pathDict={}
-        return Response(successStatus)
         pathList=[]
         for item in urls.urlpatterns:
             print item.regex.pattern
             pathList.append(item.regex.pattern)
         pathDict['paths']=pathList
         return Response(pathDict)
+
+class AddOneChannel(APIView):    
+	def get(self,request):
+		pass 
+       
