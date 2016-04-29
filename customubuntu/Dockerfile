@@ -9,5 +9,5 @@ RUN apt-get update
 #RUN apt-get install -y  python-dev python-pip 
 RUN apt-get install -y  python-pip 
 
-RUN pip install -i http://pypi.douban.com/simple/  -r requirment.txt 
+RUN pip install  -r requirment.txt 
 
