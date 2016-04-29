@@ -11,7 +11,7 @@ web:
  build: .
  command: python /opt/manage.py runserver 0.0.0.0:80
  ports:
-  - "80:80"
+  - "9080:80"
  links:
   - db
 

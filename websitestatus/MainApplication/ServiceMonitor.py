@@ -5,7 +5,6 @@ import redis
 import requests
 import time
 import socket
-import gevent
 from redis_lock import RedisLock
 
 globalRedisSettings={'redisHostname':socket.gethostbyname('db'),'redisPort':6379,'redisDb':0,'prefixInRedis':'URL','checkInterval':1}
