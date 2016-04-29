@@ -2,8 +2,6 @@ Django
 requests
 django-filter
 djangorestframework
-gevent
-greenlet
 Markdown
 redis
 redis-lock
