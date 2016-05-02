@@ -39,7 +39,7 @@ class HostCheck(object):
         self.sock.close()
         return -1
         
-class NetStatus(object):
+class OneNetStatus(object):
     def __init__(self,ipList):
         self.ipList=ipList
         self.ipStatusList=[-1 for item in self.ipList]
@@ -48,26 +48,50 @@ class NetStatus(object):
         hostCheck=HostCheck(oneHost,self.portCheckList)
         openedPort=hostCheck.isHostUp()
         return openedPort
-    def status(self):    
+    def checkStatus(self):    
         #sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         for index in range(len(self.ipList)):            
             self.ipStatusList[index]=self.oneOpenPortInHost(self.ipList[index])
         finalStatus=False
         for status in self.ipStatusList:
             finalStatus=finalStatus or status     
-        #sock.close()
-        return self.ipStatusList
+        #ock.close()
+        #return self.ipStatusList
+        return [(oneIp,onePort) for oneIp,onePort in zip(self.ipList,self.ipStatusList)]
         #print self.ipStatusList   
+class NetworkStatus(object):
+    def __init__(self):
+        self.networkList=[]
+        self.networkStatusList=[]
+    def addOneNet(self,oneNet):
+        if self.__isCClassNetwork(oneNet):            
+            self.networkList.append(oneNet)
+        else:
+            raise Exception("Network is not type C !")
+    def removeOneNet(self,oneNet):
+        self.networkList.remove(oneNet)
+    def networkList(self):
+        return self.networkList
+    def checkOneNetInThread(self,networkList,index):
+        pass
+    def checkAllNet(self): #check every net in thread
+        pass
+    def __isCClassNetwork(self,oneNet):
+        networkObject=netaddr.IPNetwork(oneNet)
+        if networkObject.prefixlen!=24:
+            return False
+        else:
+            return True
 if __name__=='__main__':
-    oneNetObject=netaddr.IPNetwork('202.196.166.180/24')
-    #oneNetObject=netaddr.IPNetwork('192.168.20.1/24')
+    #oneNetObject=netaddr.IPNetwork('202.196.166.180/24')
+    oneNetObject=netaddr.IPNetwork('192.168.10.1/24')
     hostObjectList=list(oneNetObject)
     hostList=[str(hostObject) for hostObject in hostObjectList]
     hostList.remove(str(oneNetObject.network))
     hostList.remove(str(oneNetObject.broadcast))
     ipList=hostList
-    netStatus2=NetStatus(ipList)
+    netStatus2=OneNetStatus(ipList)
     
     
-    print netStatus2.status()
+    print netStatus2.checkStatus()
     #print len(ipList)
