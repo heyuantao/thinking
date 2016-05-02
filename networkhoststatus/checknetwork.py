@@ -59,7 +59,8 @@ class NetStatus(object):
         return self.ipStatusList
         #print self.ipStatusList   
 if __name__=='__main__':
-    oneNetObject=netaddr.IPNetwork('192.168.20.1/24')
+    oneNetObject=netaddr.IPNetwork('202.196.166.180/24')
+    #oneNetObject=netaddr.IPNetwork('192.168.20.1/24')
     hostObjectList=list(oneNetObject)
     hostList=[str(hostObject) for hostObject in hostObjectList]
     hostList.remove(str(oneNetObject.network))
