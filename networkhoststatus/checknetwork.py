@@ -40,10 +40,12 @@ class HostCheck(object):
         return -1
         
 class OneNetStatus(object):
-    def __init__(self,ipList):
-        self.ipList=ipList
-        self.ipStatusList=[-1 for item in self.ipList]
+    def __init__(self,oneNetwork):
+        
         self.portCheckList=[22,53,80,443,445]
+        #get ip list from one network
+        self.ipList=self.__getIpListFromOneNet(oneNetwork)
+        self.ipStatusList=[-1 for item in self.ipList]
     def oneOpenPortInHost(self,oneHost):
         hostCheck=HostCheck(oneHost,self.portCheckList)
         openedPort=hostCheck.isHostUp()
@@ -57,8 +59,15 @@ class OneNetStatus(object):
             finalStatus=finalStatus or status     
         #ock.close()
         #return self.ipStatusList
-        return [(oneIp,onePort) for oneIp,onePort in zip(self.ipList,self.ipStatusList)]
+        return [{oneIp:onePort} for oneIp,onePort in zip(self.ipList,self.ipStatusList)]
         #print self.ipStatusList   
+    def __getIpListFromOneNet(self,oneNetwork):
+        oneNetObject=netaddr.IPNetwork(oneNetwork)
+        hostObjectList=list(oneNetObject)
+        hostList=[str(hostObject) for hostObject in hostObjectList]
+        hostList.remove(str(oneNetObject.network))
+        hostList.remove(str(oneNetObject.broadcast))
+        return hostList
 class NetworkStatus(object):
     def __init__(self):
         self.networkList=[]
@@ -72,7 +81,7 @@ class NetworkStatus(object):
         self.networkList.remove(oneNet)
     def networkList(self):
         return self.networkList
-    def checkOneNetInThread(self,networkList,index):
+    def checkOneNetInThread(self,networkList,networkStatusList,index):
         pass
     def checkAllNet(self): #check every net in thread
         pass
@@ -84,13 +93,13 @@ class NetworkStatus(object):
             return True
 if __name__=='__main__':
     #oneNetObject=netaddr.IPNetwork('202.196.166.180/24')
-    oneNetObject=netaddr.IPNetwork('192.168.10.1/24')
-    hostObjectList=list(oneNetObject)
-    hostList=[str(hostObject) for hostObject in hostObjectList]
-    hostList.remove(str(oneNetObject.network))
-    hostList.remove(str(oneNetObject.broadcast))
-    ipList=hostList
-    netStatus2=OneNetStatus(ipList)
+    #oneNetObject=netaddr.IPNetwork('192.168.10.1/24')
+    #hostObjectList=list(oneNetObject)
+    #hostList=[str(hostObject) for hostObject in hostObjectList]
+    #hostList.remove(str(oneNetObject.network))
+    #hostList.remove(str(oneNetObject.broadcast))
+    #ipList=hostList
+    netStatus2=OneNetStatus('192.168.10.1/24')
     
     
     print netStatus2.checkStatus()
