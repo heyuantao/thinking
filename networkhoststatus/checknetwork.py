@@ -21,16 +21,33 @@ class HostCheck(object):
         threadList=[]     
         #first check the custom port list
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
         for index in range(len(self.portList)):
             onePortStatus=self.isThisPortOpen(self.portList[index])
-            if onePortStatus==True:
-                print 'without full check'
+            if onePortStatus==True:    
+                print 'last open port check'            
                 self.sock.close()
                 return self.portList[index]
+        #then check the global port list without the last check port
+        globalPortList=[oneport for oneport in GlobalPortCheckList]
+        for onePortToRemove in self.portList:
+            if onePortToRemove in globalPortList:
+                globalPortList.remove(onePortToRemove)
+        for index in range(len(globalPortList)):
+            onePortStatus=self.isThisPortOpen(globalPortList[index])
+            if onePortStatus==True:
+                print 'list port check'
+                self.sock.close()
+                return globalPortList[index]
         #none of port in list is open,so do a full check
         fullServerPortList=[onePort for onePort in range(1,1024)]
-        [fullServerPortList.remove(onePortToRemove) for onePortToRemove in self.portList]
-        print 'do full check'
+        for onePortToRemove in GlobalPortCheckList:
+            if onePortToRemove in fullServerPortList:
+                fullServerPortList.remove(onePortToRemove)
+        for onePortToRemove in self.portList:
+            if onePortToRemove in fullServerPortList:        
+                fullServerPortList.remove(onePortToRemove)
+        print 'full port check'
         for index in range(len(fullServerPortList)):
             onePortStatus=self.isThisPortOpen(fullServerPortList[index])
             if onePortStatus==True:
@@ -59,7 +76,7 @@ class OneNetStatus(object):
             raise "Create OneNetStatus Error !"        
     def __init__(self,oneNetwork):
 
-        self.portCheckList=GlobalPortCheckList
+        #
         #get ip list from one network
         self.ipList=self.__getIpListFromOneNet(oneNetwork)
         if hasattr(self, "ipStatusList"):
@@ -67,7 +84,9 @@ class OneNetStatus(object):
         else:
             self.ipStatusList=[-1 for item in self.ipList]
     def oneOpenPortInHost(self,oneHost):
-        hostCheck=HostCheck(oneHost,self.portCheckList)
+        portCheckList=[]
+        portCheckList.append(self.lastCheckPort(oneHost))
+        hostCheck=HostCheck(oneHost,portCheckList)
         openedPort=hostCheck.isHostUp()
         print 'Host:',oneHost,'port:',openedPort
         return openedPort
