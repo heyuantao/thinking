@@ -51,16 +51,12 @@ class OneNetStatus(object):
         openedPort=hostCheck.isHostUp()
         return openedPort
     def checkStatus(self):    
-        #sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         for index in range(len(self.ipList)):            
             self.ipStatusList[index]=self.oneOpenPortInHost(self.ipList[index])
-        finalStatus=False
-        for status in self.ipStatusList:
-            finalStatus=finalStatus or status     
-        #ock.close()
-        #return self.ipStatusList
-        return [{oneIp:onePort} for oneIp,onePort in zip(self.ipList,self.ipStatusList)]
-        #print self.ipStatusList   
+    def getIpList(self):
+        return self.ipList
+    def getStatusList(self):
+        return [{'ip':oneIp,'port':onePort} for oneIp,onePort in zip(self.ipList,self.ipStatusList)]
     def __getIpListFromOneNet(self,oneNetwork):
         oneNetObject=netaddr.IPNetwork(oneNetwork)
         hostObjectList=list(oneNetObject)
@@ -99,8 +95,8 @@ if __name__=='__main__':
     #hostList.remove(str(oneNetObject.network))
     #hostList.remove(str(oneNetObject.broadcast))
     #ipList=hostList
-    netStatus2=OneNetStatus('192.168.10.1/24')
+    netStatus=OneNetStatus('192.168.20.1/24')
+    netStatus.checkStatus()
     
-    
-    print netStatus2.checkStatus()
+    print netStatus.getStatusList()
     #print len(ipList)
