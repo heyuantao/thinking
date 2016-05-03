@@ -1,8 +1,10 @@
 import socket
 import threading
 import netaddr
+import nmap
 
 GlobalPortCheckList=[22,53,80,443,445]   
+#62078 is iphone-sync service
 
 class HostCheck(object):
     def __init__(self,host,portList):
@@ -78,6 +80,7 @@ class OneNetStatus(object):
 
         #
         #get ip list from one network
+        self.oneNetwork=oneNetwork
         self.ipList=self.__getIpListFromOneNet(oneNetwork)
         if hasattr(self, "ipStatusList"):
             pass
@@ -86,7 +89,7 @@ class OneNetStatus(object):
     def oneOpenPortInHost(self,oneHost):
         portCheckList=[]
         lastOpenPort=self.lastCheckPort(oneHost)
-        if lastOpenPort>=0:
+        if lastOpenPort>0:
             portCheckList.append(lastOpenPort)
         hostCheck=HostCheck(oneHost,portCheckList)
         openedPort=hostCheck.isHostUp()
@@ -97,9 +100,20 @@ class OneNetStatus(object):
         index=self.ipList.index(ip)
         return self.ipStatusList[index]
     def checkStatus(self):    
-        #self.ipStatusList=[-1 for item in self.ipList]
+        #check tcp port by connect it
         for index in range(len(self.ipList)):            
             self.ipStatusList[index]=self.oneOpenPortInHost(self.ipList[index])
+        #check the icmp
+        nm = nmap.PortScanner()
+        nm.scan(hosts=self.oneNetwork, arguments='-n -sP -PE')
+        hostStatusList=[]
+        for x in nm.all_hosts():
+            index=self.ipList.index(x)
+            if self.ipStatusList[index]>0:
+                pass
+            else:
+                self.ipStatusList[index]=0
+        #return hostStatusList
     def getIpList(self):
         return self.ipList
     def getIpStatusList(self):
@@ -169,6 +183,4 @@ if __name__=='__main__':
     #print networkStatus.getStatus()
     netStatus=OneNetStatus('192.168.10.1/24')
     netStatus.checkStatus()
-    netStatus2=OneNetStatus('192.168.10.1/24')
     print netStatus.getIpStatusList()
-    print netStatus==netStatus2
