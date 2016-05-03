@@ -1,8 +1,9 @@
 import socket
 import threading
 import netaddr
-#from netaddr import IPNetwork
-   
+
+GlobalPortCheckList=[22,53,80,443,445]   
+
 class HostCheck(object):
     def __init__(self,host,portList):
         self.host=host
@@ -58,7 +59,7 @@ class OneNetStatus(object):
             raise "Create OneNetStatus Error !"        
     def __init__(self,oneNetwork):
 
-        self.portCheckList=[22,53,80,443,445]
+        self.portCheckList=GlobalPortCheckList
         #get ip list from one network
         self.ipList=self.__getIpListFromOneNet(oneNetwork)
         if hasattr(self, "ipStatusList"):
@@ -70,8 +71,10 @@ class OneNetStatus(object):
         openedPort=hostCheck.isHostUp()
         print 'Host:',oneHost,'port:',openedPort
         return openedPort
-    def lastCheckPort(self):
-        pass
+    #return the last check opened port
+    def lastCheckPort(self,ip):
+        index=self.ipList.index(ip)
+        return self.ipStatusList[index]
     def checkStatus(self):    
         #self.ipStatusList=[-1 for item in self.ipList]
         for index in range(len(self.ipList)):            
