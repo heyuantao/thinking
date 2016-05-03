@@ -183,4 +183,14 @@ if __name__=='__main__':
     #print networkStatus.getStatus()
     netStatus=OneNetStatus('192.168.10.1/24')
     netStatus.checkStatus()
-    print netStatus.getIpStatusList()
+    statusList= netStatus.getIpStatusList()
+    
+    oneNetObject=netaddr.IPNetwork('192.168.10.1/24')
+    hostObjectList=list(oneNetObject)
+    hostList=[str(hostObject) for hostObject in hostObjectList]
+    hostList.remove(str(oneNetObject.network))
+    hostList.remove(str(oneNetObject.broadcast))
+    
+    for index in range(len(statusList)):
+        if statusList[index]>=0:
+            print hostList[index]
