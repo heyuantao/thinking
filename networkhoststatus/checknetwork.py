@@ -57,17 +57,23 @@ class OneNetStatus(object):
         except Exception:
             raise "Create OneNetStatus Error !"        
     def __init__(self,oneNetwork):
-        
+
         self.portCheckList=[22,53,80,443,445]
         #get ip list from one network
         self.ipList=self.__getIpListFromOneNet(oneNetwork)
+        if hasattr(self, "ipStatusList"):
+            pass
+        else:
+            self.ipStatusList=[-1 for item in self.ipList]
     def oneOpenPortInHost(self,oneHost):
         hostCheck=HostCheck(oneHost,self.portCheckList)
         openedPort=hostCheck.isHostUp()
         print 'Host:',oneHost,'port:',openedPort
         return openedPort
+    def lastCheckPort(self):
+        pass
     def checkStatus(self):    
-        self.ipStatusList=[-1 for item in self.ipList]
+        #self.ipStatusList=[-1 for item in self.ipList]
         for index in range(len(self.ipList)):            
             self.ipStatusList[index]=self.oneOpenPortInHost(self.ipList[index])
     def getIpList(self):
@@ -127,18 +133,18 @@ class NetworkStatus(object):
         else:
             return True
 if __name__=='__main__':
-    networkStatus=NetworkStatus()
-    networkStatus.addOneNet('192.168.10.1/24')
-    networkStatus.addOneNet('192.168.0.1/24')
-    networkStatus.addOneNet('192.168.5.1/24')
-    networkStatus.addOneNet('192.168.6.1/24')
-    networkStatus.addOneNet('192.168.7.1/24')
-    networkStatus.addOneNet('192.168.8.1/24')
-    networkStatus.addOneNet('192.168.20.1/24')
-    networkStatus.checkAllNet()
-    print networkStatus.getStatus()
-    #netStatus=OneNetStatus('192.168.10.1/24')
-    #netStatus.checkStatus()
-    #netStatus2=OneNetStatus('192.168.10.1/24')
-    #print netStatus.getIpStatusList()
-    #print netStatus==netStatus2
+    #networkStatus=NetworkStatus()
+    #networkStatus.addOneNet('192.168.10.1/24')
+    #networkStatus.addOneNet('192.168.0.1/24')
+    #networkStatus.addOneNet('192.168.5.1/24')
+    #networkStatus.addOneNet('192.168.6.1/24')
+    #networkStatus.addOneNet('192.168.7.1/24')
+    #networkStatus.addOneNet('192.168.8.1/24')
+    #networkStatus.addOneNet('192.168.20.1/24')
+    #networkStatus.checkAllNet()
+    #print networkStatus.getStatus()
+    netStatus=OneNetStatus('192.168.10.1/24')
+    netStatus.checkStatus()
+    netStatus2=OneNetStatus('192.168.10.1/24')
+    print netStatus.getIpStatusList()
+    print netStatus==netStatus2
