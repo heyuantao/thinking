@@ -30,6 +30,8 @@ class OneThing(object):
 if __name__=='__main__':
     one=OneThing('123')
     one.display()
+    one.abc='efg'
     two=OneThing('123')
     two.display()
+    print 'other obj:',two.abc
     print one==two
