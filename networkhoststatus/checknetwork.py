@@ -85,7 +85,9 @@ class OneNetStatus(object):
             self.ipStatusList=[-1 for item in self.ipList]
     def oneOpenPortInHost(self,oneHost):
         portCheckList=[]
-        portCheckList.append(self.lastCheckPort(oneHost))
+        lastOpenPort=self.lastCheckPort(oneHost)
+        if lastOpenPort>=0:
+            portCheckList.append(lastOpenPort)
         hostCheck=HostCheck(oneHost,portCheckList)
         openedPort=hostCheck.isHostUp()
         print 'Host:',oneHost,'port:',openedPort
