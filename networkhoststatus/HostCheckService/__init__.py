@@ -67,7 +67,7 @@ class HostCheckServiceMonitor(object):
         
     def getNetworkStatus(self):  
         self.__clearNetworkNotInList()
-        keyPattern="IP"+':*' #'URL:*'
+        keyPattern="NETWORK"+':*' #'URL:*'
         networkListWithPrefix=self.redisConnection.keys(pattern=keyPattern)
         networkList=[self.__removePrefix(item) for item in networkListWithPrefix ]
         statusList=[]
@@ -153,26 +153,44 @@ class HostCheckService(object):
             time.sleep(int(self.checkInterval)-1)
     def mainThreadLoop(self):#continue forever
         while True:
+            print 'in main thread !'
             networkList=self.redisConnection.smembers('NETWORKS')
             if (self.__needCheck()==True) and( len(networkList)>0 ):           
                 networkStatus=NetworkStatus()
+                #appent the nets into the object and begin check
                 for oneNet in networkList:
                     networkStatus.addOneNet(oneNet)
-                networkStatus.checkAllNet()           
-                #work at this     
-                #threadList=[threading.Thread(target=self.hostCheckTask, args=(oneNetwork,)) for oneNetwork in networkList]                
-                #[thread.start() for thread in threadList]
-                #[thread.join() for thread in threadList]
-                #update the timestamp after every check
+                networkStatus.checkAllNet()   
+                #store the information into redis   
+                for oneNet in networkList:
+                    oneNetStatus=networkStatus.getNetworkStatus(oneNet)
+                    oneNetWithPrefix='NETWORK:'+oneNet
+                    self.redisConnection.set(oneNetWithPrefix,oneNetStatus)     
+                #clear the ip not in networkList
+                self.__clearUselessNet()
                 self.redisConnection.set('TIMESTAMP',int(time.time()))                
             time.sleep(self.checkInterval)
-    def hostCheckTask(self,network):
+    def __clearUselessNet(self):
+        networkList=self.redisConnection.smembers('NETWORKS')
+        keyPattern="NETWORK"+':*' #'URL:*'
+        networkCheckedListWithPrefix=self.redisConnection.keys(pattern=keyPattern)
+        networkCheckedList=[self.__removePrefix(item) for item in networkCheckedListWithPrefix ]  
+        for oneNet in networkCheckedList:
+            if oneNet not in networkList:
+                oneNetWithPrefix='NETWORK:'+oneNet
+                self.redisConnection.delete(oneNetWithPrefix)
+    def __removePrefix(self,string):
+        stringArray=string.split(':')
+        newStringArray=stringArray[1:] #remove the first part this is URL
+        newString=':'.join(newStringArray) #reassemble the left things
+        return newString
+    #def hostCheckTask(self,network):
         #returnDict={}
-        networkHostInformation=NetworkHostInformation(network)
-        hostDict=networkHostInformation.getHostStatus()
+    #    networkHostInformation=NetworkHostInformation(network)
+    #    hostDict=networkHostInformation.getHostStatus()
         #returnDict[network]=hostDict
         #print 'check',network
-        networkTag="IP:"+network
-        self.redisConnection[networkTag]=hostDict
+    #    networkTag="IP:"+network
+    #    self.redisConnection[networkTag]=hostDict
     
         
