@@ -4,12 +4,12 @@ import threading
 import socket
 from DesignPattern import singleton
 from netaddr import IPNetwork
-from NetworkHostInformation import NetworkHostInformation
+#from NetworkHostInformation import NetworkHostInformation
 from CheckNetwork import NetworkStatus
 
 #db='localhost'
 #global settings
-globalSettingsDict={'checkInterval':20,'redisHost':socket.gethostbyname('db'),'redisPort':6379,'redisDb':0}
+globalSettingsDict={'checkInterval':30,'redisHost':socket.gethostbyname('db'),'redisPort':6379,'redisDb':0}
 
 #this object is used by django app
 @singleton
