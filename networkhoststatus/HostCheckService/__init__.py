@@ -5,6 +5,7 @@ import socket
 from DesignPattern import singleton
 from netaddr import IPNetwork
 from NetworkHostInformation import NetworkHostInformation
+from CheckNetwork import NetworkStatus
 
 #db='localhost'
 #global settings
@@ -148,25 +149,22 @@ class HostCheckService(object):
     #def checkNetworksIn   
     def updateKeepAliveStatusInThread(self):
         while True:
-            #runStatus=self.redisConnection.get('STATUS')
-            #if (runStatus=='STOP') or (runStatus is None): #check and do nothing
-            #    pass
-            #elif runStatus=='RUN':
-            #    pass
-            #update the keep alive status,self.checkInterval is timeout time
             self.redisConnection.setex('KEEPALIVE','TRUE',int(self.checkInterval)-1)
             time.sleep(int(self.checkInterval)-1)
     def mainThreadLoop(self):#continue forever
         while True:
             networkList=self.redisConnection.smembers('NETWORKS')
-            if (self.__needCheck()==True) and( len(networkList)>0 ):                
-                threadList=[threading.Thread(target=self.hostCheckTask, args=(oneNetwork,)) for oneNetwork in networkList]
-                
-                [thread.start() for thread in threadList]
-                [thread.join() for thread in threadList]
+            if (self.__needCheck()==True) and( len(networkList)>0 ):           
+                networkStatus=NetworkStatus()
+                for oneNet in networkList:
+                    networkStatus.addOneNet(oneNet)
+                networkStatus.checkAllNet()           
+                #work at this     
+                #threadList=[threading.Thread(target=self.hostCheckTask, args=(oneNetwork,)) for oneNetwork in networkList]                
+                #[thread.start() for thread in threadList]
+                #[thread.join() for thread in threadList]
                 #update the timestamp after every check
-                self.redisConnection.set('TIMESTAMP',int(time.time()))
-                
+                self.redisConnection.set('TIMESTAMP',int(time.time()))                
             time.sleep(self.checkInterval)
     def hostCheckTask(self,network):
         #returnDict={}

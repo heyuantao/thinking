@@ -2,6 +2,7 @@ import socket
 import threading
 import netaddr
 import nmap
+from DesignPattern import singleton
 
 GlobalPortCheckList=[22,53,80,443,445]   
 #62078 is iphone-sync service
@@ -27,7 +28,7 @@ class HostCheck(object):
         for index in range(len(self.portList)):
             onePortStatus=self.isThisPortOpen(self.portList[index])
             if onePortStatus==True:    
-                print 'last open port check'            
+                #print 'last open port check'            
                 self.sock.close()
                 return self.portList[index]
         #then check the global port list without the last check port
@@ -38,7 +39,7 @@ class HostCheck(object):
         for index in range(len(globalPortList)):
             onePortStatus=self.isThisPortOpen(globalPortList[index])
             if onePortStatus==True:
-                print 'list port check'
+                #print 'list port check'
                 self.sock.close()
                 return globalPortList[index]
         #none of port in list is open,so do a full check
@@ -49,7 +50,7 @@ class HostCheck(object):
         for onePortToRemove in self.portList:
             if onePortToRemove in fullServerPortList:        
                 fullServerPortList.remove(onePortToRemove)
-        print 'full port check'
+        #print 'full port check'
         for index in range(len(fullServerPortList)):
             onePortStatus=self.isThisPortOpen(fullServerPortList[index])
             if onePortStatus==True:
@@ -77,9 +78,6 @@ class OneNetStatus(object):
         except Exception:
             raise "Create OneNetStatus Error !"        
     def __init__(self,oneNetwork):
-
-        #
-        #get ip list from one network
         self.oneNetwork=oneNetwork
         self.ipList=self.__getIpListFromOneNet(oneNetwork)
         if hasattr(self, "ipStatusList"):
@@ -90,10 +88,11 @@ class OneNetStatus(object):
         portCheckList=[]
         lastOpenPort=self.lastCheckPort(oneHost)
         if lastOpenPort>0:
+            #print 'use last check port:',lastOpenPort
             portCheckList.append(lastOpenPort)
         hostCheck=HostCheck(oneHost,portCheckList)
         openedPort=hostCheck.isHostUp()
-        print 'Host:',oneHost,'port:',openedPort
+        #print 'Host:',oneHost,'port:',openedPort
         return openedPort
     #return the last check opened port
     def lastCheckPort(self,ip):
@@ -133,19 +132,26 @@ class OneNetStatus(object):
             return False
         else:
             return True
-        
+ 
+@singleton       
 class NetworkStatus(object):
     def __init__(self):
         self.networkList=[]
         
     def addOneNet(self,oneNet):
-        if self.__isCClassNetwork(oneNet):            
-            self.networkList.append(oneNet)
+        if self.__isCClassNetwork(oneNet):    
+            if oneNet in self.networkList:
+                pass
+            else:   
+                self.networkList.append(oneNet)
         else:
             raise Exception("Network is not type C !")
     def removeOneNet(self,oneNet):
-        self.networkList.remove(oneNet)
-    def networkList(self):
+        if oneNet in self.networkList:
+            self.networkList.remove(oneNet)
+        else:
+            pass
+    def getNetworkList(self):
         return self.networkList
     def checkOneNetInThread(self,networkList,networkStatusList,index):
         network=networkList[index]
@@ -157,7 +163,13 @@ class NetworkStatus(object):
         threadList=[threading.Thread(target=self.checkOneNetInThread,args=(self.networkList,self.networkStatusList,index)) for index in range(len(self.networkList))]
         [oneThread.start() for oneThread in threadList]
         [oneThread.join() for oneThread in threadList]
-    def getStatus(self):
+    def getNetworkStatus(self,oneNet):
+        try:
+            oneNetStatus=OneNetStatus(oneNet)
+            return oneNetStatus.getStatus()
+        except Exception:
+            return []
+    def getAllStatus(self):
         returnDict=[]
         for oneNet in self.networkList:
             oneItem={}
@@ -170,27 +182,12 @@ class NetworkStatus(object):
             return False
         else:
             return True
+
+'''
 if __name__=='__main__':
-    #networkStatus=NetworkStatus()
-    #networkStatus.addOneNet('192.168.10.1/24')
-    #networkStatus.addOneNet('192.168.0.1/24')
-    #networkStatus.addOneNet('192.168.5.1/24')
-    #networkStatus.addOneNet('192.168.6.1/24')
-    #networkStatus.addOneNet('192.168.7.1/24')
-    #networkStatus.addOneNet('192.168.8.1/24')
-    #networkStatus.addOneNet('192.168.20.1/24')
+    networkStatus=NetworkStatus()
+    networkStatus.addOneNet('192.168.10.1/24')
+    networkStatus.addOneNet('192.168.0.1/24')
     #networkStatus.checkAllNet()
-    #print networkStatus.getStatus()
-    netStatus=OneNetStatus('192.168.10.1/24')
-    netStatus.checkStatus()
-    statusList= netStatus.getIpStatusList()
-    
-    oneNetObject=netaddr.IPNetwork('192.168.10.1/24')
-    hostObjectList=list(oneNetObject)
-    hostList=[str(hostObject) for hostObject in hostObjectList]
-    hostList.remove(str(oneNetObject.network))
-    hostList.remove(str(oneNetObject.broadcast))
-    
-    for index in range(len(statusList)):
-        if statusList[index]>=0:
-            print hostList[index]
+    print networkStatus.getNetworkStatus('192.168.0.1/24')
+'''
