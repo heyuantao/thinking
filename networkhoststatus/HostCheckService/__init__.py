@@ -2,6 +2,7 @@ import redis
 import time
 import threading
 import socket
+import json
 from DesignPattern import singleton
 from netaddr import IPNetwork
 #from NetworkHostInformation import NetworkHostInformation
@@ -72,7 +73,8 @@ class HostCheckServiceMonitor(object):
         networkList=[self.__removePrefix(item) for item in networkListWithPrefix ]
         statusList=[]
         for oneNetworkWithPrefix in networkListWithPrefix:
-            oneNetworkStatus=self.redisConnection.get(oneNetworkWithPrefix)
+            oneNetworkStatusString=self.redisConnection.get(oneNetworkWithPrefix)
+            oneNetworkStatus=json.loads(oneNetworkStatusString)
             statusList.append(oneNetworkStatus)
         #print statusList
         networkDict={}
@@ -165,7 +167,8 @@ class HostCheckService(object):
                 for oneNet in networkList:
                     oneNetStatus=networkStatus.getNetworkStatus(oneNet)
                     oneNetWithPrefix='NETWORK:'+oneNet
-                    self.redisConnection.set(oneNetWithPrefix,oneNetStatus)     
+                    oneNetStatusString=json.dumps(oneNetStatus)
+                    self.redisConnection.set(oneNetWithPrefix,oneNetStatusString)     
                 #clear the ip not in networkList
                 self.__clearUselessNet()
                 self.redisConnection.set('TIMESTAMP',int(time.time()))                
