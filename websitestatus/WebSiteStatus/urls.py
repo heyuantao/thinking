@@ -18,6 +18,6 @@ from django.conf import settings
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^api/', include('MainApplication.urls')),
+    url(r'^website/', include('MainApplication.urls')),
     #url(r'^admin/', admin.site.urls),
 ]
