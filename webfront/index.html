@@ -13,7 +13,7 @@
 <body ng-app="indexApp" ng-controller="indexController">
 <div class="container">
     <div class="row">
-        <div class="col-md-5">
+        <div class="col-md-3">
             <table class="table table-bordered table-striped">
                 <thead>
                 <tr>
@@ -22,7 +22,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="one in hostList">
+                <tr ng-repeat="one in hostList" ng-class="{'离线':'active','在线':'success'}[one.port|portFilter]">
                     <td>
                         {{one.ip}}
                     </td>

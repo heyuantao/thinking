@@ -9,7 +9,7 @@ app.controller('indexController',['$scope','$http',function($scope,$http){
     $scope.msg="hello word!";
     $http.get("http://networkhoststatus.hudieshanfood.com/api/status/")
         .success(function(response){
-            $scope.hostList=response.networks['192.168.20.1/24'];
+            $scope.hostList=response.networks['192.168.0.1/24'];
         })
 }])
 app.filter('portFilter',function(){
