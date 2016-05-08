@@ -128,6 +128,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/networkhoststatus/static/'
-MEDIA_URL = '/networkhoststatus/media/'
+STATIC_URL = '/network/static/'
+MEDIA_URL = '/network/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
