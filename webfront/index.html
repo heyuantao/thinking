@@ -8,11 +8,17 @@
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <script src="bower_components/angular/angular.js"></script>
-    <script src="app/js/index.js"></script>
+    <script src="app/network/js/controller/network.js"></script>
+    <script src="app/network/js/service/network.js"></script>
 </head>
-<body ng-app="indexApp" ng-controller="indexController">
+<body ng-app="monitor.network" ng-controller="monitor.networkController">
 <div class="container">
     <div class="row">
+        <div class="form-group col-md-3" >
+            <select ng-model="selectedNetwork" ng-options="item for item in networkList" class="form-control">
+                <option value="">-- 请选择 --</option>
+            </select>
+        </div>
         <div class="col-md-3">
             <table class="table table-bordered table-striped">
                 <thead>
@@ -22,7 +28,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="one in hostList" ng-class="{'离线':'active','在线':'success'}[one.port|portFilter]">
+                <tr ng-repeat="one in hostList" ng-show="one.port>0">
                     <td>
                         {{one.ip}}
                     </td>
