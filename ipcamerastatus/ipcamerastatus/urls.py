@@ -5,6 +5,6 @@ urlpatterns = [
     # Examples:
     # url(r'^$', 'ipcamerastatus.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
-    url(r'^ipcamerastatus/', include('MainApplication.urls')),
+    url(r'^ipcamera/', include('MainApplication.urls')),
     #url(r'^admin/', include(admin.site.urls)),
 ]
